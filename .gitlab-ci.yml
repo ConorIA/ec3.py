@@ -1,0 +1,22 @@
+image: docker:stable
+
+services:
+  - docker:dind
+
+.build: &build
+  stage: build
+  script:
+    - docker run --rm -v "$(pwd):/src/" cdrx/pyinstaller-${TARGET}:python3 "pyinstaller --noconfirm --onefile eccc.py"
+  artifacts:
+    paths:
+      - dist/*
+
+build-win:
+  <<: *build
+  variables:
+    TARGET: windows
+
+build-lin:
+  <<: *build
+  variables:
+    TARGET: linux

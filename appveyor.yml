@@ -1,0 +1,18 @@
+install:
+  - cmd: |
+       python -m pip install --upgrade pip
+       python -m pip install pyinstaller
+       python -m pip install -r requirements.txt
+
+build: false
+
+test_script:
+  - cmd: |
+      python -m pyinstaller --noconfirm --onefile eccc.py
+
+on_failure:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+artifacts:
+  - path: dist/*
+    name: binary

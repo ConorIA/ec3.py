@@ -1,0 +1,28 @@
+language: generic
+
+os: osx
+
+before_install:
+    # Remove homebrew.
+    - |
+      echo ""
+      echo "Removing homebrew from Travis CI to avoid conflicts."
+      curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall > ~/uninstall_homebrew
+      chmod +x ~/uninstall_homebrew
+      ~/uninstall_homebrew -fq
+      rm ~/uninstall_homebrew
+
+install:
+    - |
+      pip install --upgrade pip
+      pip install pyinstaller
+      pip install -r requirements.txt
+
+script:
+  - pyinstaller --noconfirm --onefile eccc.py
+
+addons:
+  artifacts:
+    # ...
+    paths:
+    - dist/*
