@@ -9,7 +9,7 @@ install:
       pip3 install -r requirements.txt
 
 script:
-  - pyinstaller --noconfirm --onefile eccc.py
+  - python -m pyinstaller --noconfirm --onefile eccc.py
 
 addons:
   artifacts:
