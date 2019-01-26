@@ -1,16 +1,17 @@
-image: docker:stable
-
-services:
-  - docker:dind
+stages:
+  - build
+  - deploy
 
 .build: &build
+  image: docker:stable
+  services:
+    - docker:dind
   stage: build
   script:
     - docker run --rm -v "$(pwd):/src/" cdrx/pyinstaller-${TARGET}:python3 "pyinstaller --noconfirm --onefile eccc.py"
   artifacts:
     paths:
       - dist/*
-  only: master
 
 build-win:
   <<: *build
@@ -21,3 +22,12 @@ build-lin:
   <<: *build
   variables:
     TARGET: linux
+
+deploy:
+  image: alpine
+  stage: deploy
+  script:
+    - apk add --no-cache curl ca-certificates
+    - ls -l
+    - curl -T dist/eccc -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/eccc/lin/
+    - curl -T dist/eccc.exe -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/eccc/win/

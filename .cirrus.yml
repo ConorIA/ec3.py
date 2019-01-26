@@ -13,5 +13,5 @@ task:
   build_script:
     - pyinstaller --noconfirm --onefile eccc.py
   publish_script:
-    - curl -T dist/eccc -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/eccc/win/
+    - curl -T dist/eccc -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/eccc/mac/
   
