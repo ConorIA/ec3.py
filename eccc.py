@@ -42,7 +42,6 @@ def download_file(url, filename):
         sys.exit("There was an error finding that file! The error was: {}".format(e))
     except urllib.error.HTTPError as e:
         sys.exit("There was an error downloading that file! The error was: {}".format(e))
-    sys.exit(0)
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='eccc 2.0')
@@ -50,6 +49,7 @@ if __name__ == '__main__':
     if arguments['-i']:
         print("Downloading station data inventory.")
         download_file("ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv", "Station Inventory EN.csv")
+        sys.exit(0)
 
     if arguments['-t'] is None:
         timeframe = 2
