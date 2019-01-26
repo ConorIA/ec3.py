@@ -3,7 +3,7 @@ task:
   osx_instance:
     image: mojave-base
   environment:
-    PASSWORD: ENCRYPTED[18b99f4d21d768a07511358c3d3581891567a74a29a25ab9299505b4ae14f6e769534bc60630f866f29795baf3348959]
+    PASSWORD: ENCRYPTED[49d1196e18e8e95b75a7068276ac082aeccdbd45f48d4dfeb3581d54d6facd4ac4e87e64149bf81ec7cff36cd497a6a4]
   install_script:
     - brew install python3 
     - pip3 install --upgrade setuptools wheel
