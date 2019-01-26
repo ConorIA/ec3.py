@@ -1,7 +1,7 @@
 """
 Usage:
-  eccc (-i | -s <station>...) [options]
-  eccc (-h | --help)
+  ec3 (-i | -s <station>...) [options]
+  ec3 (-h | --help)
 
 Facilitates download of hourly, daily, or monthly climate data from Environment and Climate Change Canada
 
@@ -23,9 +23,9 @@ Other options:
     -v --version   Print the program version and exit
 
 Examples:
-  eccc -i # downloads the data inventory csv.
-  eccc -s 5051 -y 1981:2010 -g # creates a single daily .csv file for Toronto daily data
-  eccc -s 5051 -y 1981:2010 -m 6:8 -t 1  # downloads hourly data for the summer months from 1981 to 2010 at Toronto
+  ec3 -i # downloads the data inventory csv.
+  ec3 -s 5051 -y 1981:2010 -g # creates a single daily .csv file for Toronto daily data
+  ec3 -s 5051 -y 1981:2010 -m 6:8 -t 1  # downloads hourly data for the summer months from 1981 to 2010 at Toronto
 """
 
 from docopt import docopt
@@ -44,7 +44,7 @@ def download_file(url, filename):
         sys.exit("There was an error downloading that file! The error was: {}".format(e))
 
 if __name__ == '__main__':
-    arguments = docopt(__doc__, version='eccc 2.0')
+    arguments = docopt(__doc__, version='ec3 2.0')
 
     if arguments['-i']:
         print("Downloading station data inventory.")
