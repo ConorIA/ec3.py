@@ -19,7 +19,7 @@ Search Options
   --period <period>    The period for which you need data, separated by a colon, e.g. 1981:2010
   --type <type>        The type of data you are searching for (required if period is used)
                        Options: 1, hourly; 2, daily; 3, monthly
-  --target <y> [<x>]   Either a station code, or space-separated longitude and latitude values
+  --target <y> [<x>]   Either a station code, or space-separated latitude (N) and longitude (W) values
   --dist <distance>    Colon-separated minimum and maximum distance from target [default: 0:100]
   --recodes            Pass this flag for the program to suggest stations that may be combined to
                        cover the period that you requested.
@@ -118,23 +118,23 @@ def station_search(name=None, province=None, period=None, type=None, detect_reco
     # Next, set the data we are interested in, if necessary
     if period is not None:
         if type is None:
-            warnings.warn("No data type passed. Ignoring data filter.")
+            warn("No data type passed. Ignoring data filter.")
         else:
-            if type in ['1', 'h', 'H']:
+            if type == 1 or type[0] in ['1', 'h', 'H']:
                 wantcols = ['HLY First Year', 'HLY Last Year']
                 dropcols = ['DLY First Year', 'DLY Last Year', 'MLY First Year', 'MLY Last Year']
-            elif type in ['2', "d", 'D']:
+            elif type == 2 or type[0] in ['2', 'd', 'D']:
                 wantcols = ['DLY First Year', 'DLY Last Year']
                 dropcols = ['HLY First Year', 'HLY Last Year', 'MLY First Year', 'MLY Last Year']
-            elif type in ['3', 'm', 'M']:
+            elif type == 3 or type[0] in ['3' 'm', 'M']:
                 wantcols = ['MLY First Year', 'MLY Last Year']
                 dropcols = ['HLY First Year', 'HLY Last Year', 'DLY First Year', 'DLY Last Year']
             else:
                 period = None
-                warnings.warn("Invalid data type passed. Ignoring data filter.")
+                warn("Invalid data type passed. Ignoring data filter.")
 
     if target is not None:
-        if len(target) == 1:
+        if isinstance(target, int):
             coords = inv[['Latitude (Decimal Degrees)', 'Longitude (Decimal Degrees)']][inv['Station ID'] == target]
             p1 = tuple(coords.values[0])
         elif len(target) == 2:
@@ -146,6 +146,8 @@ def station_search(name=None, province=None, period=None, type=None, detect_reco
         if filt.shape[0] == 0:
             print("No results!")
             return
+
+        filt = filt.sort_values('Dist')
 
     if period is not None:
         filt = filt.drop(dropcols, axis=1)
@@ -165,14 +167,14 @@ def station_search(name=None, province=None, period=None, type=None, detect_reco
                     if (~dups[wantcols[1]].isnull().any()) & (max(dups[wantcols[1]]) >= max(period)):
                         if min(dups[wantcols[1]]) <= max(dups[wantcols[0]]):
                             if not printed:
-                                print("Note: In addition to the stations found, the following\n", \
-                                      "combinations may provide sufficient baseline data.\n\n")
+                                print("Note: In addition to the stations found, the following combinations may provide sufficient baseline data.\n\n")
                                 printed = True
                                 combo = 1
                             print(">> Combination", combo, "at coordinates", coords['Latitude (Decimal Degrees)'][rw], \
-                                  coords['Longitude (Decimal Degrees)'][rw], "\n\n")
+                                  coords['Longitude (Decimal Degrees)'][rw], "\n")
                             for r in range(dups.shape[0]):
                                 print("Station {}: {}".format(dups.iloc[[r]]['Station ID'].values[0], dups.iloc[[r]].Name.values[0]))
+                            print("\n")
                             combo += combo
 
         if filt.shape[0] == 0:
@@ -273,10 +275,15 @@ def get_data(arguments):
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='ec3 2.0')
 
+    DEBUG = os.getenv('DEBUG', False)
+
+    if DEBUG:
+        print(arguments)
+
     if arguments['find']:
         if arguments['--period'] is not None:
             if not bool(re.search(r'(^[0-9]{4}$|^[0-9]{4}:[0-9]{4}$)', arguments['--period'])):
-                warnings.warn("Invalid period format.")
+                warn("Invalid period format.")
                 period = None
             else:
                 period = [int(x) for x in arguments['--period'].split(":")]
@@ -284,15 +291,26 @@ if __name__ == '__main__':
             period = None
 
         if arguments['--target'] is not None:
-            target = arguments['--target']
-            if arguments['<x>'] is not None:
-                target = (target, arguments['<x>'])
+            if arguments['<x>'] is None:
+                try:
+                    target = int(arguments['--target'])
+                except ValueError:
+                    exit("Target value could not be coerced to integer. Typo?")
+            else:
+                try:
+                    target = float(arguments['--target'])
+                except ValueError:
+                    exit("Latitude value could not be coerced to a number. Typo?")
+                try:
+                    target = (target, -float(arguments['<x>']))
+                except ValueError:
+                    exit("Longitude value could not be coerced to a number. Typo?")
         else:
             target = None
 
         if arguments['--dist'] is not None:
             if not bool(re.search(r'(^[0-9]{1,4}:[0-9]{1,4}$)', arguments['--dist'])):
-                warnings.warn("Invalid dist format.")
+                warn("Invalid dist format.")
                 dist = range(101)
             else:
                 dist = [int(x) for x in arguments['--dist'].split(":")]
@@ -315,7 +333,6 @@ if __name__ == '__main__':
         exit(0)
 
     if arguments['inv']:
-        print("Downloading station data inventory.")
         download_file("ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv", "Station Inventory EN.csv")
         exit(0)
 
