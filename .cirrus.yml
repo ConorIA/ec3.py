@@ -12,6 +12,9 @@ task:
     - pip3 install -r requirements.txt
   build_script:
     - pyinstaller --noconfirm --onefile ec3.py
-  publish_script:
+
+publish_task:
+  only_if: $CIRRUS_BRANCH == 'master'
+  script:
     - curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/mac/
   
