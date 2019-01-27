@@ -269,7 +269,7 @@ def get_data(arguments):
         else:
             outfile = "{}-{}.csv".format(station, period)
         print("Saving data to", outfile)
-        dat.to_csv(outfile)
+        dat.to_csv(outfile, index=False)
 
 
 if __name__ == '__main__':
@@ -327,7 +327,7 @@ if __name__ == '__main__':
 
         if results is not None:
             if arguments['--outfile'] is not None:
-                results.to_csv(arguments['--outfile'])
+                results.to_csv(arguments['--outfile'], index=False)
             print(results)
 
         exit(0)
