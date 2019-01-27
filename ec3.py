@@ -41,7 +41,7 @@ Other options:
 
 Examples:
   ec3 inv # downloads the data inventory csv.
-  ec3 search -n Toronto # find stations with "Toronto" in their name
+  ec3 search --name Toronto # find stations with "Toronto" in their name
   ec3 get -s 5051 -y 1981:2010 # creates a single daily .csv file for Toronto daily data
   ec3 get -s 5051 -y 1981:2010 -m 6:8 -t 1 # downloads hourly data for the summer months from 1981 to 2010 at Toronto
 """
