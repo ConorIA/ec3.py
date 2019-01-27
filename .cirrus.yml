@@ -12,7 +12,7 @@ build_task:
     - pip3 install pyinstaller
     - pip3 install -r requirements.txt
   build_script:
-    - pyinstaller --noconfirm --onefile ec3.py
+    - pyinstaller --noconfirm --onefile --additional-hooks-dir=.misc/hooks ec3.py
     - chmod a+x dist/ec3
   publish_script:
     - curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/mac/

@@ -8,7 +8,7 @@ stages:
     - docker:dind
   stage: build
   script:
-    - docker run --rm -v "$(pwd):/src/" cdrx/pyinstaller-${TARGET}:python3 "apt-get update -y && apt-get install -y upx-ucl && pyinstaller --noconfirm --onefile ec3.py"
+    - docker run --rm -v "$(pwd):/src/" cdrx/pyinstaller-${TARGET}:python3 "apt-get update -y && apt-get install -y upx-ucl && pyinstaller --noconfirm --onefile --additional-hooks-dir=.misc/hooks ec3.py"
   artifacts:
     expire_in: 1h
     paths:
