@@ -6,6 +6,7 @@ environment:
 build_task:
   install_script:
     - brew install python3 
+    - brew install upx
     - pip3 install --upgrade setuptools wheel
     - pip3 install pip==18.1
     - pip3 install pyinstaller
