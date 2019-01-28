@@ -31,10 +31,11 @@ _Note: as of writing, the Linux and Windows versions are lightly tested. The Mac
 
 ### Usage
 
-**ec3** has three base commands: `inv`, `find`, and `get`. Note, that the usage examples below are showing the Linux version of the program. On Windows, you should use `ec3.exe` instead of `ec3`. For a full description of all available commands and options, type:
+**ec3** has three base commands: `inv`, `find`, and `get`. The examples below are showing the Linux version of the program. If you get an error that the command is not found, call the executable with the full directory path, or, if it is saved in the current directory, append `./` on Linux or Mac.
 
-```{bash}
-./ec3 --help
+```{bash, echo=2}
+PATH=$PWD:$PATH
+ec3 --help
 ```
 
 
@@ -44,8 +45,9 @@ The `inv` command will download the most recent (English) version of the ECCC [S
 
 _I may make the download automatic in the future, but 1.3 MB is not a trivial amount to download on each run and I have not delved into caching the table the way that I do in [**canadaHCDx**](https://gitlab.com/ConorIA/canadaHCDx/blob/master/R/get_station_data.R). Contributions are welcome._ 
 
-```{bash}
-./ec3 inv
+```{bash, echo=2}
+PATH=$PWD:$PATH
+ec3 inv
 ```
 
 #### `find`
@@ -53,47 +55,55 @@ _I may make the download automatic in the future, but 1.3 MB is not a trivial am
 The search function is invoked by the `find` command. You can search by name, period of available data (specifying data type, hourly, daily, or monthly), but province, and by proximity to some target. 
 
 As an example, run the following command to find, all stations with "Toronto" in their name. _Note, I have piped the output to head, because the list is very long. You should omit that `| head` section to see more results!_
-```{bash}
-./ec3 find --name "Toronto" | head
+```{bash, echo=2}
+PATH=$PWD:$PATH
+ec3 find --name "Toronto" | head
 ```
 
 You can limit your results by province. e.g. find all stations in the province of Ontario:
-```{bash}
-./ec3 find --prov ON | head
+```{bash, echo=2}
+PATH=$PWD:$PATH
+ec3 find --prov ON | head
 ```
 
-_Note: You can pass more than one province by repeating the pattern, e.g._ `./ec3 --prov ON --prov QC`
+_Note: You can pass more than one province by repeating the pattern, e.g._ `ec3 --prov ON --prov QC`
 
 You can also limit your results by available data. e.g. find stations named "Toronto", with hourly data available from 1971 to 2000:
-```{bash}
-./ec3 find --name Toronto --period 1971:2000 --type hourly
+```{bash, echo=2}
+PATH=$PWD:$PATH
+ec3 find --name Toronto --period 1971:2000 --type hourly
 ```
 
 Searches can be passed a target of either a station ID (e.g. 5051), or space-separated latitude and longitude coordinates. The coordinates should be passed as decimal degrees of north latitude, and (positive) decimal degrees of west longitude. _Note: Negative numbers will not work as they are interpreted as command line flags._
 
 e.g. find all stations between 0 and 100 km from Station No. 5051 (Toronto):
-```{bash}
-./ec3 find --target 5051 --dist 0:100 | head
+```{bash, echo=2}
+PATH=$PWD:$PATH
+ec3 find --target 5051 --dist 0:100 | head
 ```
 
 e.g. find all stations that are within 5 km of UTSC campus:
-```{bash}
-./ec3 find --target 43.7838 79.1875 --dist 0:5
+```{bash, echo=2}
+PATH=$PWD:$PATH
+ec3 find --target 43.7838 79.1875 --dist 0:5
 ```
 
 Finally, there have been a number of cases where the same station has changed name and ID over its history. In this case, filtering by the period of available data might exclude these stations. If you would like the have **ec3** try to identify these cases, use the `--recodes` command line flag. The program will report any combination for which the coordinates are the same, and which, together, provide sufficient data. 
 
-```{bash}
-./ec3 find --period 1981:2010 --type 2 --target 5051 --dist 0:10 --recodes
+```{bash, echo=2}
+PATH=$PWD:$PATH
+ec3 find --period 1981:2010 --type 2 --target 5051 --dist 0:10 --recodes
 ```
 
 By default, the results of a search are not saved. The output will also likely be truncated due to some of Pythons print limitations. To save the full results to a CSV file, pass the `--outfile` flag with a filename: 
-```{bash}
-./ec3 find --name "Toronto" --outfile results.csv | head
+```{bash, echo=2}
+PATH=$PWD:$PATH
+ec3 find --name "Toronto" --outfile results.csv | head
 ```
 
 The results can then be explored in a spreadsheet program or in Python, R, etc.
-```{bash}
+```{bash, echo=2}
+PATH=$PWD:$PATH
 cat results.csv | head
 ```
 
@@ -107,17 +117,20 @@ When you are ready to download the data, you can do so using the `get` command. 
 - `-m <months>`: colon-separated start and end months (or single month) e.g. `6:8` (only used for hourly data)
 
 As an example, let's get the hourly spring data for Toronto Pearson in 1989 and 1990.
-```{bash}
-./ec3 get -s 5097 -t 1 -y 1989:1990 -m 3:5
+```{bash, echo=2}
+PATH=$PWD:$PATH
+ec3 get -s 5097 -t 1 -y 1989:1990 -m 3:5
 ```
 
 By default, the data will be saved to a filename called _&lt;station&lg;-&lt;timeframe&gt;.csv_. To change the filename, pass the `--outfile` flag, as we did to save search results. 
 
-```{bash}
-./ec3 get -s 5097 -t 1 -y 1989 -m 4 --outfile a_nerd_is_born.csv
+```{bash, echo=2}
+PATH=$PWD:$PATH
+ec3 get -s 5097 -t 1 -y 1989 -m 4 --outfile a_nerd_is_born.csv
 ```
 
-```{bash}
+```{bash, echo=2}
+PATH=$PWD:$PATH
 cat a_nerd_is_born.csv | head -75 | tail -1 
 ```
 
