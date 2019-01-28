@@ -78,7 +78,7 @@ e.g. find all stations between 0 and 100 km from Station No. 5051 (Toronto):
 
 e.g. find all stations that are within 5 km of UTSC campus:
 ```{bash}
-./ec3 find --target 43.2860 79.1873 --dist 0:5
+./ec3 find --target 43.7838 79.1875 --dist 0:5
 ```
 
 Finally, there have been a number of cases where the same station has changed name and ID over its history. In this case, filtering by the period of available data might exclude these stations. If you would like the have **ec3** try to identify these cases, use the `--recodes` command line flag. The program will report any combination for which the coordinates are the same, and which, together, provide sufficient data. 
@@ -128,3 +128,7 @@ cat a_nerd_is_born.csv | head -75 | tail -1
 As of the time of writing, **ec3** is really just a Python port of the "eccc" shell script, and the `find_stations()` functionality of **canadaHCDx**. Plans for the future include restructuring the program so that it can be imported as a Python module and used directly in Python as well as on the command line. Again, contributions are most welcome.
 
 Finally, the file size for the standalone binaries is currently very large. I hope to reduce this size if possible.
+
+```{bash, include=FALSE}
+rm 5097-hourly.csv a_nerd_is_born.csv ec3 results.csv Station\ Inventory\ EN.csv
+```
