@@ -3,16 +3,16 @@ os: osx
 osx_image: xcode8
 env:
   global:
-  - secure: DhZDLMZ2vkAIr6gJdauz9iZnTOcwpkj0CY3yibvBIOXSWk6RsA6+50zBwC9iFXgcBZEW/L3ynxqHv6IbZ3BBVE1D6/cTSTs5ojp4XuwiKbnoryu7piu4D69HB3PB7LaIB5WdKOCPzU7o6gBvg8eFO/7IbTGTENddQ/O8ws3X0lQdcVqhuRz9txpfjhCycvDuNWVkjfEa1y6QvuNwYb4LOdHZsbCGoVZNt5yEfewSfo43b1w5UXYS9f9dt3rF37Qv4C3pwvor7ulOieQZqK9ZlPCGu+/cncOIwvDbw9L2layanrlfMQgPei0FzHhk/+q5imrGV5XPEinnc9usSR7tYxCBlTlvz9Uvmw7CWnt4jmm7rUDvNKodT++4YwQD42r+EkirKaiIWYu/kLASwcmtFnkQK1cwKys/vj1QPt9UYCeCM1HgZ3u39AePBS77sqrVFLOxIAwHwhHrYXLJfmCLgD1Sr9pX2p0ZWxQ6bf+JLNUiI+rh/k6oUhUGdfTiMM4bxb07RX/G+BElJRh7toPhTg3FaNHavQHvEmqU5EeOuOu/A9nNvYWLMCgmTMvPVxtXsq1jJG+cWjafBpWNZJKu+htZK2PbsdW+P0naD/VpK7HHJ6UNJkhCCK8OM+F4QJXsMnG+hjfJhTYGhGRHohD6hwOXY9fy/8G20Kr8HiWFrpE=
+    secure: cWpBTjbKyB3nweXKXEgNJ+2WtUBGFtHB52kXqz8NkVyxL0/Wbq7FbLPFa709odRJZZ6E2bvDPBQ57zUZ/sMrX04BOYldEOUoxmuQpQizXkhfkTuTKeHYAZU6gv+mL5YnyHArKZCeim6lsJqcZEyd9GG4Mpz8mTMG6rXb6RZVu3pVsEm3nMYI/VhQ/0rdEOMBXG0olrT7sts0IMAm/SFT+ZfHpvc/bmVFUwXobu0NUurQWunku2gM2ou9s7Q8Ce7N4stJ5eDjEfmjKJc+3raf2jQ7aWGg9K3nmrbsRpv26n6RgMC+d+KaywWkw+1wPhkYmczKmduyzQtcdHfbHX686StJcJsgm82PlyD3JKtDx3JeOQF/YkqL3BsWZYl07D2LXWIGAMNKxmMogZR3HyO+y76ukxiVd/bClbmTGrAvw42zadDAVl2p8IXlg6i1OBc5Ddk9NMl/7Ta0zNkpNXLCXWjVhqZ+1V44iGMmyugdufG+c4nHd7V3LZLBT7qsgI/7TrgdktxGvVIywSgPNrOy7ASr1+znGSD4Rlpljky6q/b2C+8kW56WzkaCJWxEN2UNnwPV0JAUrCc8jQ0fLf4IEBrdVgfF2ZE5cICsmhz0vkfaBZy+JiDsq7dMbI1w/7ajeHYUxCu4nUEye3dneKHd7iNltDMkIuJ240O2ZA557Vk=
 install:
-  - brew update-reset # Might be unnecessary
-  - brew install python3 
-  - brew install upx
-  - pip3 install --upgrade setuptools wheel
-  - pip3 install pip==18.1
-  - pip3 install pyinstaller
-  - pip3 install -r requirements.txt
+- brew update-reset
+- brew install python3
+- brew install upx
+- pip3 install --upgrade setuptools wheel
+- pip3 install pip==18.1
+- pip3 install pyinstaller
+- pip3 install -r requirements.txt
 script:
-  - pyinstaller --noconfirm --onefile --additional-hooks-dir=.misc/hooks ec3.py
+- pyinstaller --noconfirm --onefile --additional-hooks-dir=.misc/hooks ec3.py
 after_success:
-  - curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/mac/
+- curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/mac/
