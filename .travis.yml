@@ -1,0 +1,17 @@
+language: generic
+os: osx
+osx_image: xcode6.4
+env:
+  global:
+  - secure: DhZDLMZ2vkAIr6gJdauz9iZnTOcwpkj0CY3yibvBIOXSWk6RsA6+50zBwC9iFXgcBZEW/L3ynxqHv6IbZ3BBVE1D6/cTSTs5ojp4XuwiKbnoryu7piu4D69HB3PB7LaIB5WdKOCPzU7o6gBvg8eFO/7IbTGTENddQ/O8ws3X0lQdcVqhuRz9txpfjhCycvDuNWVkjfEa1y6QvuNwYb4LOdHZsbCGoVZNt5yEfewSfo43b1w5UXYS9f9dt3rF37Qv4C3pwvor7ulOieQZqK9ZlPCGu+/cncOIwvDbw9L2layanrlfMQgPei0FzHhk/+q5imrGV5XPEinnc9usSR7tYxCBlTlvz9Uvmw7CWnt4jmm7rUDvNKodT++4YwQD42r+EkirKaiIWYu/kLASwcmtFnkQK1cwKys/vj1QPt9UYCeCM1HgZ3u39AePBS77sqrVFLOxIAwHwhHrYXLJfmCLgD1Sr9pX2p0ZWxQ6bf+JLNUiI+rh/k6oUhUGdfTiMM4bxb07RX/G+BElJRh7toPhTg3FaNHavQHvEmqU5EeOuOu/A9nNvYWLMCgmTMvPVxtXsq1jJG+cWjafBpWNZJKu+htZK2PbsdW+P0naD/VpK7HHJ6UNJkhCCK8OM+F4QJXsMnG+hjfJhTYGhGRHohD6hwOXY9fy/8G20Kr8HiWFrpE=
+install:
+  - brew install python3 
+  - brew install upx
+  - pip3 install --upgrade setuptools wheel
+  - pip3 install pip==18.1
+  - pip3 install pyinstaller
+  - pip3 install -r requirements.txt
+script:
+  - pyinstaller --noconfirm --onefile --additional-hooks-dir=.misc/hooks ec3.py
+after_success:
+  - curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/mac/
