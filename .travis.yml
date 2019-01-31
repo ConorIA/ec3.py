@@ -1,12 +1,9 @@
 language: generic
 os: osx
 osx_image: xcode8
-env:
-  global:
-    secure: cWpBTjbKyB3nweXKXEgNJ+2WtUBGFtHB52kXqz8NkVyxL0/Wbq7FbLPFa709odRJZZ6E2bvDPBQ57zUZ/sMrX04BOYldEOUoxmuQpQizXkhfkTuTKeHYAZU6gv+mL5YnyHArKZCeim6lsJqcZEyd9GG4Mpz8mTMG6rXb6RZVu3pVsEm3nMYI/VhQ/0rdEOMBXG0olrT7sts0IMAm/SFT+ZfHpvc/bmVFUwXobu0NUurQWunku2gM2ou9s7Q8Ce7N4stJ5eDjEfmjKJc+3raf2jQ7aWGg9K3nmrbsRpv26n6RgMC+d+KaywWkw+1wPhkYmczKmduyzQtcdHfbHX686StJcJsgm82PlyD3JKtDx3JeOQF/YkqL3BsWZYl07D2LXWIGAMNKxmMogZR3HyO+y76ukxiVd/bClbmTGrAvw42zadDAVl2p8IXlg6i1OBc5Ddk9NMl/7Ta0zNkpNXLCXWjVhqZ+1V44iGMmyugdufG+c4nHd7V3LZLBT7qsgI/7TrgdktxGvVIywSgPNrOy7ASr1+znGSD4Rlpljky6q/b2C+8kW56WzkaCJWxEN2UNnwPV0JAUrCc8jQ0fLf4IEBrdVgfF2ZE5cICsmhz0vkfaBZy+JiDsq7dMbI1w/7ajeHYUxCu4nUEye3dneKHd7iNltDMkIuJ240O2ZA557Vk=
 install:
-- brew update-reset
-- brew install python3
+- brew update
+- brew upgrade python
 - brew install upx
 - pip3 install --upgrade setuptools wheel
 - pip3 install pip==18.1
