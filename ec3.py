@@ -65,9 +65,9 @@ def download_file(url, filename):
     try:
         resp = urllib.request.urlretrieve(url, filename)
     except urllib.error.URLError as e:
-        exit("There was an error finding that file! The error was: {}".format(e))
+        raise Exception("There was an error finding that file! The error was: {}".format(e))
     except urllib.error.HTTPError as e:
-        exit("There was an error downloading that file! The error was: {}".format(e))
+        raise Exception("There was an error downloading that file! The error was: {}".format(e))
 
 
 def guess_skip(filename):
@@ -80,7 +80,7 @@ def station_search(name=None, province=None, period=None, type=None, detect_reco
 
     filename = "Station Inventory EN.csv"
     if not os.path.isfile(filename):
-        exit("Cannot find the station inventory. Download it with 'ec3 inv'")
+        raise Exception("Cannot find the station inventory. Download it with 'ec3 inv'")
 
     inv = pd.read_csv(filename, skiprows = guess_skip(filename))
     # Correct some placeholder coordinates (list comp because otherwise I get warnings)
@@ -103,7 +103,7 @@ def station_search(name=None, province=None, period=None, type=None, detect_reco
                     "QC", "SK", "YT"]
         if all([len(i) == 2 for i in p_pass]):
             if not all([i.upper() in p_codes for i in province]):
-                exit("Incorrect province code(s) provided.")
+                raise Exception("Incorrect province code(s) provided.")
             indeces = [i for i, x in enumerate([i in p_pass for i in p_codes]) if x]
             pull_prov = itemgetter(*indeces)(sorted(list(set(inv.Province))))
             if isinstance(pull_prov, str):
@@ -184,57 +184,38 @@ def station_search(name=None, province=None, period=None, type=None, detect_reco
     return filt
 
 
-def get_data(arguments):
+def get_data(stations=None, timeframe=2, years=None, months=range(1,13)):
+
     tempdir = mkdtemp()
 
-    if arguments['-t'] is None:
-        timeframe = 2
-    else:
-        if arguments['-t'] in ['1', 'h', 'H']:
+    if not timeframe in [1, 2, 3]:
+        if not re.search('1|H|h|2|D|d|3|M|m', timeframe):
+            raise Exception("Invalid timeframe passed.")
+        elif timeframe[0] in ['1', 'h', 'H']:
             timeframe = 1
-        elif arguments['-t'][0] in ['2', "d", 'D']:
+        elif timeframe[0] in ['2', "d", 'D']:
             timeframe = 2
-        elif arguments['-t'][0] in ['3', 'm', 'M']:
+        else:
             timeframe = 3
-        else:
-            exit("Invalid timeframe passed.")
 
-    if arguments['-m'] is None:
-        if timeframe == 1:
-            months = range(1, 13)
-        else:
-            months = [6]
-    else:
-        if timeframe != 1:
-            print("Daily and monthly data is not split by month. Ignored.")
-            months = [6]
-        else:
-            if not bool(re.search(r'(^[0-9]{1,2}$|^[0-9]{1,2}:[0-9]{1,2}$)', arguments['-m'])):
-                exit("Invalid month format.")
-            else:
-                months = [int(x) for x in arguments['-m'].split(":")]
-                if any(x not in range(13) for x in months):
-                    exit("Months must be from 1 to 12.")
-                else:
-                    months = range(min(months), max(months) + 1)
+    if isinstance(months, int):
+        months = [months]
 
-    if arguments['-y'] is None:
+    if timeframe != 1:
+        ## Daily and monthy data are not split by month.
+        months = [6]
+
+    if years is None:
         if timeframe != 3:
-            exit("Years must be specified!")
+            raise Exception("Years must be specified!")
         else:
             years = [1989]
     else:
         if timeframe == 3:
             print("Monthly data is not split by year. Ignored.")
             years = [1989]
-        else:
-            if not bool(re.search(r'(^[0-9]{4}$|^[0-9]{4}:[0-9]{4}$)', arguments['-y'])):
-                exit("Invalid year format.")
-            else:
-                years = [int(x) for x in arguments['-y'].split(":")]
-                years = range(min(years), max(years) + 1)
 
-    for station in arguments['-s']:
+    for station in stations:
 
         for year in years:
             for month in months:
@@ -258,18 +239,14 @@ def get_data(arguments):
                 try:
                     dat
                 except NameError:
-                    dat = pd.read_csv(filename, skiprows = guess_skip(filename))
+                    dat = pd.read_csv(filename, skiprows = guess_skip(filename)).assign(Station=station)
                 else:
-                    dat = dat.append(pd.read_csv(filename, skiprows = guess_skip(filename)))
+                    dat = dat.append(pd.read_csv(filename, skiprows = guess_skip(filename)).assign(Station=station))
 
                 sleep(0.5)
 
-        if arguments['--outfile'] is not None:
-            outfile = arguments['--outfile']
-        else:
-            outfile = "{}-{}.csv".format(station, period)
-        print("Saving data to", outfile)
-        dat.to_csv(outfile, index=False)
+    cols = dat.columns.tolist()
+    return dat[cols[-1:] + cols[:-1]]
 
 
 if __name__ == '__main__':
@@ -337,5 +314,63 @@ if __name__ == '__main__':
         exit(0)
 
     if arguments['get']:
-        get_data(arguments)
+
+        if not arguments['-t'] in [1, 2, 3]:
+            if not re.search('1|H|h|2|D|d|3|M|m', arguments['-t']):
+                exit("Invalid timeframe passed.")
+            elif arguments['-t'][0] in ['1', 'h', 'H']:
+                timeframe = 1
+            elif arguments['-t'][0] in ['2', "d", 'D']:
+                timeframe = 2
+            else:
+                timeframe = 3
+
+        if arguments['-m'] is None:
+            if timeframe == 1:
+                months = range(1, 13)
+            else:
+                months = [6]
+        else:
+            if timeframe != 1:
+                print("Daily and monthly data is not split by month. Ignored.")
+                months = [6]
+            else:
+                if not bool(re.search(r'(^[0-9]{1,2}$|^[0-9]{1,2}:[0-9]{1,2}$)', arguments['-m'])):
+                    raise Exception("Invalid month format.")
+                else:
+                    months = [int(x) for x in arguments['-m'].split(":")]
+                    if any(x not in range(13) for x in months):
+                        raise Exception("Months must be from 1 to 12.")
+                    else:
+                        months = range(min(months), max(months) + 1)
+
+        if arguments['-y'] is None:
+            if timeframe != 3:
+                stop("Years must be specified!")
+            else:
+                years = [1989]
+        else:
+            if timeframe == 3:
+                print("Monthly data is not split by year. Ignored.")
+                years = [1989]
+            else:
+                if not bool(re.search(r'(^[0-9]{4}$|^[0-9]{4}:[0-9]{4}$)', arguments['-y'])):
+                    stop("Invalid year format.")
+                else:
+                    years = [int(x) for x in arguments['-y'].split(":")]
+                    years = range(min(years), max(years) + 1)
+
+        OUT = get_data(stations=arguments['-s'], timeframe=timeframe,
+                       years=years, months=months)
+
+        if arguments['--outfile'] is not None:
+            outfile = arguments['--outfile']
+        else:
+            outfile = "{}-{}-{}{}.csv".format(
+              '+'.join(['5051', '5097']),
+              ['hourly', 'daily', 'monthly'][timeframe - 1],
+              re.sub(':', '-', arguments['-y']),
+              '' if timeframe != 1 or arguments['-s'] is None else '-m' + re.sub(':', '-', arguments['-m']))
+        print("Saving data to", outfile)
+        OUT.to_csv(outfile, index=False)
         exit(0)
