@@ -57,10 +57,15 @@ from geopy.distance import distance
 from operator import itemgetter
 from warnings import warn
 from tempfile import mkdtemp
+from tqdm import tqdm
+from functools import lru_cache
+DEBUG = os.getenv('DEBUG', False)
 
+__version__ = "2.1.0"
 
 def download_file(url, filename):
-    print("Downloading", os.path.basename(filename), "to",
+    if DEBUG:
+        print("Downloading", os.path.basename(filename), "to",
           os.path.dirname(filename) if os.path.dirname(filename) != '' else "current working directory")
     try:
         resp = urllib.request.urlretrieve(url, filename)
@@ -76,17 +81,56 @@ def guess_skip(filename):
     return lines.index(max(lines, key = len))
 
 
-def station_search(name=None, province=None, period=None, type=None, detect_recodes=False, target=None, dist=range(101)):
-
+@lru_cache()
+def get_inventory(force=False):
     filename = "Station Inventory EN.csv"
+
     if not os.path.isfile(filename):
-        raise Exception("Cannot find the station inventory. Download it with 'ec3 inv'")
+        if force:
+            print("Downloading", filename, "to the current working directory")
+            download_file("ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv",
+                          filename)
+        else:
+            warn("Cannot find the station inventory in the current working directory",
+                 "The data will be cached for this session. If running from the command-line,",
+                 "consider downloading the data with: \"ec3 inv\".")
+            filename = os.path.join(tempdir(), filename)
+            print("Downloading", os.path.basename(filename), "to", os.path.dirname(filename))
+            download_file("ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv",
+                          filename)
 
     inv = pd.read_csv(filename, skiprows = guess_skip(filename))
     # Correct some placeholder coordinates (list comp because otherwise I get warnings)
     inv['Latitude (Decimal Degrees)'] = [i if i != 40 else '' for i in inv['Latitude (Decimal Degrees)']]
     inv['Longitude (Decimal Degrees)'] = [i if i != -50 else '' for i in inv['Longitude (Decimal Degrees)']]
+    return inv
 
+def find_station(name=None, province=None, period=None, type=None, detect_recodes=False, target=None, dist=range(101)):
+    """Find data available in the Enviornment and Climate Change Canada
+    historical data archive
+
+    Optional Parameters
+    ----------
+    name : str
+        A pattern by which to filter station names.
+    province : list or str
+        One of more two-letter province codes, e.g. ON
+    period : int or range
+        Range of years for which data must be available
+    type : int or str
+        The type of data to search for (required if period is not None)
+        Options are: 1, hourly; 2, daily; 3, monthly
+    detect_recodes : Boolean
+        Whether to try to detect stations that have been recoded when
+        searching for stations that provide enough data for period.
+    target : tuple or int
+        Either the station code of a target station, or a tuple of
+        latitude and longitude to use as a target.
+    dist : range
+        Desired distance from target (in km); Defaul: range(101).
+    """
+
+    inv = get_inventory()
     filt = inv.copy()
 
     if name is not None:
@@ -184,55 +228,77 @@ def station_search(name=None, province=None, period=None, type=None, detect_reco
     return filt
 
 
-def get_data(stations=None, timeframe=2, years=None, months=range(1,13)):
+def get_data(stations=None, type=2, years=None, months=range(1,13), progress=True):
+    """Download data from the Enviornment and Climate Change Canada
+    historical data archive
+
+    Optional Parameters
+    ----------
+    stations : str or list
+        One or more station codes to download.
+    type : int or str
+        The type of data to search for (required if period is not None)
+        Options are: 1, hourly; 2, daily; 3, monthly
+    years : int or range
+        Range of years for which to download data (does not apply to monthly)
+    months : int or range
+        Range of months for which to download data (only applies to hourly)
+    progress : Boolean
+        Whether to show the progress bar.
+    """
 
     tempdir = mkdtemp()
 
-    if not timeframe in [1, 2, 3]:
-        if not re.search('1|H|h|2|D|d|3|M|m', timeframe):
-            raise Exception("Invalid timeframe passed.")
-        elif timeframe[0] in ['1', 'h', 'H']:
-            timeframe = 1
-        elif timeframe[0] in ['2', "d", 'D']:
-            timeframe = 2
+    if not type in [1, 2, 3]:
+        if not re.search('1|H|h|2|D|d|3|M|m', type):
+            raise Exception("Invalid type passed.")
+        elif type[0] in ['1', 'h', 'H']:
+            type = 1
+        elif type[0] in ['2', "d", 'D']:
+            type = 2
         else:
-            timeframe = 3
+            type = 3
 
     if isinstance(months, int):
         months = [months]
 
-    if timeframe != 1:
+    if type != 1:
         ## Daily and monthy data are not split by month.
         months = [6]
 
     if years is None:
-        if timeframe != 3:
+        if type != 3:
             raise Exception("Years must be specified!")
         else:
             years = [1989]
     else:
-        if timeframe == 3:
+        if type == 3:
             print("Monthly data is not split by year. Ignored.")
             years = [1989]
 
-    for station in stations:
+    loops = len(stations)*len(years)*len(months)
+    i = 0
+    if progress:
 
+        pbar = tqdm(total=loops)
+
+    for station in stations:
         for year in years:
             for month in months:
-                if timeframe == 1:
+                if type == 1:
                     period = "hourly"
                     filemth = "-{}".format(str(month).zfill(2))
                     fileyr = "-{}".format(year)
-                elif timeframe == 2:
+                elif type == 2:
                     period = "daily"
                     filemth = ""
                     fileyr = "-{}".format(year)
-                elif timeframe == 3:
+                elif type == 3:
                     period = "monthly"
                     filemth=""
                     fileyr=""
 
-                url = "http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID={}&Year={}&Month={}&Day=14&timeframe={}&submit=Download+Data".format(station, year, month, timeframe)
+                url = "http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID={}&Year={}&Month={}&Day=14&timeframe={}&submit=Download+Data".format(station, year, month, type)
                 filename = os.path.join(tempdir, "{}-{}{}{}.csv".format(station, period, fileyr, filemth))
                 download_file(url, filename)
 
@@ -243,16 +309,22 @@ def get_data(stations=None, timeframe=2, years=None, months=range(1,13)):
                 else:
                     dat = dat.append(pd.read_csv(filename, skiprows = guess_skip(filename)).assign(Station=station))
 
-                sleep(0.5)
+                i = i + 1
+                if i != loops:
+                    sleep(0.5)
+
+                if progress:
+                    pbar.update(i)
+
+    if progress:
+        pbar.close()
 
     cols = dat.columns.tolist()
     return dat[cols[-1:] + cols[:-1]]
 
 
 if __name__ == '__main__':
-    arguments = docopt(__doc__, version='ec3 2.0')
-
-    DEBUG = os.getenv('DEBUG', False)
+    arguments = docopt(__doc__, version = "ec3 " + __version__)
 
     if DEBUG:
         print(arguments)
@@ -297,10 +369,10 @@ if __name__ == '__main__':
 
         province = None if len(arguments['--prov']) == 0 else arguments['--prov']
 
-        results = station_search(name=arguments['--name'], province=province,
-                                 period=period, type=arguments['--type'],
-                                 detect_recodes=arguments['--recodes'],
-                                 target=target, dist=dist)
+        results = find_station(name=arguments['--name'], province=province,
+                               period=period, type=arguments['--type'],
+                               detect_recodes=arguments['--recodes'],
+                               target=target, dist=dist)
 
         if results is not None:
             if arguments['--outfile'] is not None:
@@ -310,7 +382,7 @@ if __name__ == '__main__':
         exit(0)
 
     if arguments['inv']:
-        download_file("ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv", "Station Inventory EN.csv")
+        null=get_inventory(force=True)
         exit(0)
 
     if arguments['get']:
@@ -360,14 +432,14 @@ if __name__ == '__main__':
                     years = [int(x) for x in arguments['-y'].split(":")]
                     years = range(min(years), max(years) + 1)
 
-        OUT = get_data(stations=arguments['-s'], timeframe=timeframe,
+        OUT = get_data(stations=arguments['-s'], type=timeframe,
                        years=years, months=months)
 
         if arguments['--outfile'] is not None:
             outfile = arguments['--outfile']
         else:
             outfile = "{}-{}-{}{}.csv".format(
-              '+'.join(['5051', '5097']),
+              arguments['-s'] if isinstance(arguments['-s'], str) else '+'.join(arguments['-s']),
               ['hourly', 'daily', 'monthly'][timeframe - 1],
               re.sub(':', '-', arguments['-y']),
               '' if timeframe != 1 or arguments['-s'] is None else '-m' + re.sub(':', '-', arguments['-m']))
