@@ -33,3 +33,14 @@ deploy:
     - curl -T dist/ec3.exe -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/win/
   only:
   - master
+
+deploy:
+  image: alpine
+  stage: deploy
+  script:
+    - apk add --no-cache curl ca-certificates
+    - curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/testing/lin/
+    - curl -T dist/ec3.exe -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/testing/win/
+  except:
+  - master
+

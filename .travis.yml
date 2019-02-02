@@ -12,4 +12,9 @@ install:
 script:
 - pyinstaller --noconfirm --onefile --additional-hooks-dir=.misc/hooks ec3.py
 after_success:
-- curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/mac/
+- |
+  if [ ${TRAVIS_BRANCH} == "master" ]; then
+    curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/mac/
+  else
+    curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/testing/mac/
+  fi
