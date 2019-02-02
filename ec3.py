@@ -431,7 +431,7 @@ if __name__ == '__main__':
                     years = [int(x) for x in arguments['-y'].split(":")]
                     years = range(min(years), max(years) + 1)
 
-        OUT = get_data(stations=arguments['-s'], timeframe=timeframe,
+        OUT = get_data(stations=arguments['-s'], type=timeframe,
                        years=years, months=months)
 
         if arguments['--outfile'] is not None:
