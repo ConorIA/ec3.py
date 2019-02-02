@@ -83,20 +83,18 @@ def guess_skip(filename):
 @lru_cache()
 def get_inventory(force=False):
     filename = "Station Inventory EN.csv"
-    
+
     if not os.path.isfile(filename):
         if force:
-            print("Downloading", os.path.basename(filename), "to",
-                  os.path.dirname(filename) if os.path.dirname(filename) != '' else "current working directory")
+            print("Downloading", filename), "to the current working directory")
             download_file("ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv",
                           filename)
         else:
-            warn("Cannot find the station inventory in the current working directory.",
+            warn("Cannot find the station inventory in the current working directory",
                  "The data will be cached for this session. If running from the command-line,",
                  "consider downloading the data with: \"ec3 inv\".")
-                 filename =os.path.join(tempdir(), filename)
-            print("Downloading", os.path.basename(filename), "to",
-                  os.path.dirname(filename) if os.path.dirname(filename) != '' else "current working directory")
+            filename = os.path.join(tempdir(), filename)
+            print("Downloading", os.path.basename(filename), "to", os.path.dirname(filename))
             download_file("ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv",
                           filename)
 
