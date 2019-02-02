@@ -86,7 +86,7 @@ def get_inventory(force=False):
 
     if not os.path.isfile(filename):
         if force:
-            print("Downloading", filename), "to the current working directory")
+            print("Downloading", filename, "to the current working directory")
             download_file("ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv",
                           filename)
         else:
