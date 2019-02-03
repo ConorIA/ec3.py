@@ -82,22 +82,28 @@ def guess_skip(filename):
 
 
 @lru_cache()
-def get_inventory(force=False):
+def get_inventory(behaviour):
     filename = "Station Inventory EN.csv"
 
-    if not os.path.isfile(filename):
-        if force:
-            print("Downloading", filename, "to the current working directory")
-            download_file("ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv",
-                          filename)
-        else:
-            warn("Cannot find the station inventory in the current working directory",
-                 "The data will be cached for this session. If running from the command-line,",
-                 "consider downloading the data with: \"ec3 inv\".")
-            filename = os.path.join(tempdir(), filename)
-            print("Downloading", os.path.basename(filename), "to", os.path.dirname(filename))
-            download_file("ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv",
-                          filename)
+    if behaviour == "update":
+        print("Downloading", filename, "to the current working directory")
+        download_file("ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv",
+                      filename)
+    else:
+        if not os.path.isfile(filename):
+            if behaviour == "local":
+                exit("Cannot find the station inventory in the current working directory",
+                     "Downloading the data with: \"ec3 inv\".")
+            elif behaviour == "session":
+                warn("Cannot find the station inventory in the current working directory",
+                     "The data will be cached for this session. If running from the command-line,",
+                     "consider downloading the data with: \"ec3 inv\".")
+                filename = os.path.join(tempdir(), filename)
+                print("Downloading", os.path.basename(filename), "to", os.path.dirname(filename))
+                download_file("ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv",
+                              filename)
+            else:
+                raise Exception("Unknown behaviour passed.")
 
     inv = pd.read_csv(filename, skiprows = guess_skip(filename))
     # Correct some placeholder coordinates (list comp because otherwise I get warnings)
@@ -130,7 +136,7 @@ def find_station(name=None, province=None, period=None, type=None, detect_recode
         Desired distance from target (in km); Defaul: range(101).
     """
 
-    inv = get_inventory()
+    inv = get_inventory(behaviour="session")
     filt = inv.copy()
 
     if name is not None:
@@ -330,6 +336,9 @@ if __name__ == '__main__':
         print(arguments)
 
     if arguments['find']:
+
+        null = get_inventory(behaviour="local")
+
         if arguments['--period'] is not None:
             if not bool(re.search(r'(^[0-9]{4}$|^[0-9]{4}:[0-9]{4}$)', arguments['--period'])):
                 warn("Invalid period format.")
@@ -382,7 +391,7 @@ if __name__ == '__main__':
         exit(0)
 
     if arguments['inv']:
-        null=get_inventory(force=True)
+        null = get_inventory(behaviour="update")
         exit(0)
 
     if arguments['get']:
