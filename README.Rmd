@@ -9,11 +9,21 @@ wget https://dav.conr.ca/ec3/lin/ec3
 ```
 
 
-**ec3** is a Python program and a standalone command-line executable to search for and download historical Canadian climate data from Environment and Climate Change Canada's historical data archive. 
+**ec3** is a Python module and a standalone command-line executable to search for and download historical Canadian climate data from Environment and Climate Change Canada's historical data archive. 
 
 ### Download
 
-**ec3** can be executed via Python by downloading [**ec3.py**](https://gitlab.com/ConorIA/ec3.py/raw/master/ec3.py?inline=false) and executing via Python, e.g. `python ec3.py --help`. Check the [requirements](https://gitlab.com/ConorIA/ec3.py/raw/master/requirements.txt) file for the libraries needed. 
+The **ec3** module can be installed via Anaconda from my personal Anaconda channel:
+
+```{bash, eval=FALSE}
+conda config --prepend channels conda-forge
+conda config --append channels ConorIA
+conda install ec3
+```
+
+The module contains two functions: `ec3.find_station()`, and `ec3.get_data()`. The functions provide the same functionality as document in this README, check the function documentation for syntax.
+
+The **ec3.py** script can also be executed directly in Python by downloading [**ec3.py**](https://gitlab.com/ConorIA/ec3.py/raw/master/ec3.py?inline=false) running, e.g. `python ec3.py --help`. Check the [requirements](https://gitlab.com/ConorIA/ec3.py/raw/master/requirements.txt) file for the libraries needed. 
 
 You can also download a standalone version of **ec3** for Windows, Linux, or Mac. This version of the program includes a bundled Python interpreter and includes all of the necessary libraries so that you can run the program directly without installing any software. This version is ideal for users who have no interest in using Python, or who can't install software on their workstation (e.g. at a university computer lab). 
 
@@ -41,9 +51,7 @@ ec3 --help
 
 #### `inv`
 
-The `inv` command will download the most recent (English) version of the ECCC [Station Inventory](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv) table (in CSV format). This command should be run periodically, as the inventory table is updated fairly regularly. This command is also a prerequisite to any of the search functions.
-
-_I may make the download automatic in the future, but 1.3 MB is not a trivial amount to download on each run and I have not delved into caching the table the way that I do in [**canadaHCDx**](https://gitlab.com/ConorIA/canadaHCDx/blob/master/R/get_station_data.R). Contributions are welcome._ 
+The `inv` command will download the most recent (English) version of the ECCC [Station Inventory](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv) table (in CSV format). This command should be run periodically, as the inventory table is updated fairly regularly. If you are running from the command line, this is a prerequiste for the `find` command. If you are running the Python module, this file will be downloaded automatically once per session.
 
 ```{bash, echo=2}
 PATH=$PWD:$PATH
@@ -122,7 +130,7 @@ PATH=$PWD:$PATH
 ec3 get -s 5097 -t 1 -y 1989:1990 -m 3:5
 ```
 
-By default, the data will be saved to a filename called _&lt;station&lg;-&lt;timeframe&gt;.csv_. To change the filename, pass the `--outfile` flag, as we did to save search results. 
+By default, the data will be saved to a filename called _&lt;station&lg;-&lt;timeframe&gt;-&lt;years&gt;&lt;months&gt;.csv_. To change the filename, pass the `--outfile` flag, as we did to save search results. 
 
 ```{bash, echo=2}
 PATH=$PWD:$PATH
@@ -138,10 +146,8 @@ cat a_nerd_is_born.csv | head -75 | tail -1
 
 **ec3** is my third offering of an "eccc" program. The first implementation was an R package that was deprecated in favour of [**canadaHCD**](https://github.com/gavinsimpson/canadaHCD) and [**canadaHCDx**](https://gitlab.com/ConorIA/canadaHCDx/). After encountering lab mates who do not use R, I implemented "eccc" as a [bash script](https://gitlab.com/ConorIA/shell-scripts/blob/master/eccc/eccc), however that version still required some relatively complex set-up on Windows (Cygwin or WSL). The name **ec3** is a play on the fact that it is both the third version of "eccc", and that there are three C's in "eccc".
 
-As of the time of writing, **ec3** is really just a Python port of the "eccc" shell script, and the `find_stations()` functionality of **canadaHCDx**. Plans for the future include restructuring the program so that it can be imported as a Python module and used directly in Python as well as on the command line. Again, contributions are most welcome.
-
-Finally, the file size for the standalone binaries is currently very large. I hope to reduce this size if possible.
+As of the time of writing, **ec3** is really just a Python port of the "eccc" shell script, and the `find_stations()` functionality of **canadaHCDx**. Plans for the future include cleaning up the code and adding some more defensive programming to the module's functions (there aren't really any checks at the moment). Finally, the file size for the standalone binaries is currently very large. I hope to reduce this size if possible.
 
 ```{bash, include=FALSE}
-rm 5097-hourly.csv a_nerd_is_born.csv ec3 results.csv Station\ Inventory\ EN.csv
+rm 5097-hourly-1989-1990-m3-5.csv a_nerd_is_born.csv ec3 results.csv Station\ Inventory\ EN.csv
 ```

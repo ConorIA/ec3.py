@@ -1,29 +1,62 @@
 ec3
 ================
 
-**ec3** is a Python program and a standalone command-line executable to search for and download historical Canadian climate data from Environment and Climate Change Canada's historical data archive.
+**ec3** is a Python module and a standalone command-line executable to
+search for and download historical Canadian climate data from
+Environment and Climate Change Canada’s historical data archive.
 
 ### Download
 
-**ec3** can be executed via Python by downloading [**ec3.py**](https://gitlab.com/ConorIA/ec3.py/raw/master/ec3.py?inline=false) and executing via Python, e.g. `python ec3.py --help`. Check the [requirements](https://gitlab.com/ConorIA/ec3.py/raw/master/requirements.txt) file for the libraries needed.
+The **ec3** module can be installed via Anaconda from my personal
+Anaconda channel:
 
-You can also download a standalone version of **ec3** for Windows, Linux, or Mac. This version of the program includes a bundled Python interpreter and includes all of the necessary libraries so that you can run the program directly without installing any software. This version is ideal for users who have no interest in using Python, or who can't install software on their workstation (e.g. at a university computer lab).
+``` bash
+conda config --prepend channels conda-forge
+conda config --append channels ConorIA
+conda install ec3
+```
 
--   [Download for Linux](https://dav.conr.ca/ec3/lin/ec3)
--   [Download for Windows](https://dav.conr.ca/ec3/win/ec3.exe)
--   [Download for Mac](https://dav.conr.ca/ec3/mac/ec3)
+The module contains two functions: `ec3.find_station()`, and
+`ec3.get_data()`. The functions provide the same functionality as
+document in this README, check the function documentation for syntax.
 
-**ec3** does not have a GUI, and therefore must be run from a terminal (or command prompt on Windows). On Linux and Mac, it will be necessary to set the application as executable by running:
+The **ec3.py** script can also be executed directly in Python by
+downloading
+[**ec3.py**](https://gitlab.com/ConorIA/ec3.py/raw/master/ec3.py?inline=false)
+running, e.g. `python ec3.py --help`. Check the
+[requirements](https://gitlab.com/ConorIA/ec3.py/raw/master/requirements.txt)
+file for the libraries needed.
+
+You can also download a standalone version of **ec3** for Windows,
+Linux, or Mac. This version of the program includes a bundled Python
+interpreter and includes all of the necessary libraries so that you can
+run the program directly without installing any software. This version
+is ideal for users who have no interest in using Python, or who can’t
+install software on their workstation (e.g. at a university computer
+lab).
+
+  - [Download for Linux](https://dav.conr.ca/ec3/lin/ec3)
+  - [Download for Windows](https://dav.conr.ca/ec3/win/ec3.exe)
+  - [Download for Mac](https://dav.conr.ca/ec3/mac/ec3)
+
+**ec3** does not have a GUI, and therefore must be run from a terminal
+(or command prompt on Windows). On Linux and Mac, it will be necessary
+to set the application as executable by running:
 
 ``` bash
 chmod +x ec3
 ```
 
-*Note: as of writing, the Linux and Windows versions are lightly tested. The Mac version has not been tested. Please report issues here!*
+*Note: as of writing, the Linux and Windows versions are lightly tested.
+The Mac version has not been tested. Please report issues here\!*
 
 ### Usage
 
-**ec3** has three base commands: `inv`, `find`, and `get`. The examples below are showing the Linux version of the program. If you get an error that the command is not found, call the executable with the full directory path, or, if it is saved in the current directory, append `./` on Linux or Mac.
+**ec3** has three base commands: `inv`, `find`, and `get`. The examples
+below are showing the Linux version of the program. If you get an error
+that the command is not found, call the executable with the full
+directory path, or, if it is saved in the current directory, append `./`
+on Linux or Mac.
 
 ``` bash
 ec3 --help
@@ -77,21 +110,33 @@ ec3 --help
 
 #### `inv`
 
-The `inv` command will download the most recent (English) version of the ECCC [Station Inventory](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv) table (in CSV format). This command should be run periodically, as the inventory table is updated fairly regularly. This command is also a prerequisite to any of the search functions.
-
-*I may make the download automatic in the future, but 1.3 MB is not a trivial amount to download on each run and I have not delved into caching the table the way that I do in [**canadaHCDx**](https://gitlab.com/ConorIA/canadaHCDx/blob/master/R/get_station_data.R). Contributions are welcome.*
+The `inv` command will download the most recent (English) version of the
+ECCC [Station
+Inventory](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv)
+table (in CSV format). This command should be run periodically, as the
+inventory table is updated fairly regularly. If you are running from the
+command line, this is a prerequiste for the `find` command. If you are
+running the Python module, this file will be downloaded automatically
+once per
+    session.
 
 ``` bash
 ec3 inv
 ```
 
-    ## Downloading Station Inventory EN.csv to current working directory
+    ## Downloading Station Inventory EN.csv to the current working directory
 
 #### `find`
 
-The search function is invoked by the `find` command. You can search by name, period of available data (specifying data type, hourly, daily, or monthly), but province, and by proximity to some target.
+The search function is invoked by the `find` command. You can search by
+name, period of available data (specifying data type, hourly, daily, or
+monthly), but province, and by proximity to some target.
 
-As an example, run the following command to find, all stations with "Toronto" in their name. *Note, I have piped the output to head, because the list is very long. You should omit that `| head` section to see more results!*
+As an example, run the following command to find, all stations with
+“Toronto” in their name. *Note, I have piped the output to head,
+because the list is very long. You should omit that `| head` section to
+see more
+    results\!*
 
 ``` bash
 ec3 find --name "Toronto" | head
@@ -108,7 +153,9 @@ ec3 find --name "Toronto" | head
     ## 6544       TORONTO BEACON ROAD  ONTARIO  ...         1962.0         1975.0
     ## 6545        TORONTO BERMONDSEY  ONTARIO  ...         1973.0         1984.0
 
-You can limit your results by province. e.g. find all stations in the province of Ontario:
+You can limit your results by province. e.g. find all stations in the
+province of
+    Ontario:
 
 ``` bash
 ec3 find --prov ON | head
@@ -125,9 +172,12 @@ ec3 find --prov ON | head
     ## 5106                  DONA LAKE  ONTARIO  ...         1990.0         1990.0
     ## 5107                  EAR FALLS  ONTARIO  ...         1928.0         1999.0
 
-*Note: You can pass more than one province by repeating the pattern, e.g.* `ec3 --prov ON --prov QC`
+*Note: You can pass more than one province by repeating the pattern,
+e.g.* `ec3 --prov ON --prov QC`
 
-You can also limit your results by available data. e.g. find stations named "Toronto", with hourly data available from 1971 to 2000:
+You can also limit your results by available data. e.g. find stations
+named “Toronto”, with hourly data available from 1971 to
+    2000:
 
 ``` bash
 ec3 find --name Toronto --period 1971:2000 --type hourly
@@ -139,9 +189,14 @@ ec3 find --name Toronto --period 1971:2000 --type hourly
     ## 
     ## [2 rows x 15 columns]
 
-Searches can be passed a target of either a station ID (e.g. 5051), or space-separated latitude and longitude coordinates. The coordinates should be passed as decimal degrees of north latitude, and (positive) decimal degrees of west longitude. *Note: Negative numbers will not work as they are interpreted as command line flags.*
+Searches can be passed a target of either a station ID (e.g. 5051), or
+space-separated latitude and longitude coordinates. The coordinates
+should be passed as decimal degrees of north latitude, and (positive)
+decimal degrees of west longitude. *Note: Negative numbers will not work
+as they are interpreted as command line flags.*
 
-e.g. find all stations between 0 and 100 km from Station No. 5051 (Toronto):
+e.g. find all stations between 0 and 100 km from Station No. 5051
+(Toronto):
 
 ``` bash
 ec3 find --target 5051 --dist 0:100 | head
@@ -156,9 +211,10 @@ ec3 find --target 5051 --dist 0:100 | head
     ## 6618              TORONTO SHERBOURNE  ...  3.2853644805861606 km
     ## 6462  PA DUFFERIN AND ST. CLAIR CIBC  ...  3.4116926360325173 km
     ## 6555               TORONTO BROADVIEW  ...  4.0324702425710255 km
-    ## 6588               TORONTO LEASIDE S  ...   4.118383821538006 km
+    ## 6588               TORONTO LEASIDE S  ...   4.118383821538359 km
 
-e.g. find all stations that are within 5 km of UTSC campus:
+e.g. find all stations that are within 5 km of UTSC
+    campus:
 
 ``` bash
 ec3 find --target 43.7838 79.1875 --dist 0:5
@@ -176,7 +232,13 @@ ec3 find --target 43.7838 79.1875 --dist 0:5
     ## 
     ## [8 rows x 20 columns]
 
-Finally, there have been a number of cases where the same station has changed name and ID over its history. In this case, filtering by the period of available data might exclude these stations. If you would like the have **ec3** try to identify these cases, use the `--recodes` command line flag. The program will report any combination for which the coordinates are the same, and which, together, provide sufficient data.
+Finally, there have been a number of cases where the same station has
+changed name and ID over its history. In this case, filtering by the
+period of available data might exclude these stations. If you would like
+the have **ec3** try to identify these cases, use the `--recodes`
+command line flag. The program will report any combination for which the
+coordinates are the same, and which, together, provide sufficient
+    data.
 
 ``` bash
 ec3 find --period 1981:2010 --type 2 --target 5051 --dist 0:10 --recodes
@@ -198,7 +260,10 @@ ec3 find --period 1981:2010 --type 2 --target 5051 --dist 0:10 --recodes
     ## 
     ## [1 rows x 16 columns]
 
-By default, the results of a search are not saved. The output will also likely be truncated due to some of Pythons print limitations. To save the full results to a CSV file, pass the `--outfile` flag with a filename:
+By default, the results of a search are not saved. The output will also
+likely be truncated due to some of Pythons print limitations. To save
+the full results to a CSV file, pass the `--outfile` flag with a
+filename:
 
 ``` bash
 ec3 find --name "Toronto" --outfile results.csv | head
@@ -215,7 +280,9 @@ ec3 find --name "Toronto" --outfile results.csv | head
     ## 6544       TORONTO BEACON ROAD  ONTARIO  ...         1962.0         1975.0
     ## 6545        TORONTO BERMONDSEY  ONTARIO  ...         1973.0         1984.0
 
-The results can then be explored in a spreadsheet program or in Python, R, etc.
+The results can then be explored in a spreadsheet program or in Python,
+R,
+    etc.
 
 ``` bash
 cat results.csv | head
@@ -234,46 +301,60 @@ cat results.csv | head
 
 #### `get`
 
-When you are ready to download the data, you can do so using the `get` command. `get` takes the following information:
+When you are ready to download the data, you can do so using the `get`
+command. `get` takes the following information:
 
--   `-s <station>`: the station code to download; this can be passed multiple times to download multiple stations.
--   `-t <timeframe`: the time frame to download: 1, hourly, 2, daily \[default\], or 3, monthly.
--   `-y <years>`: colon-separated start and end years (or single year) e.g. `1981:2010` (not needed for monthly data)
--   `-m <months>`: colon-separated start and end months (or single month) e.g. `6:8` (only used for hourly data)
+  - `-s <station>`: the station code to download; this can be passed
+    multiple times to download multiple stations.
+  - `-t <timeframe`: the time frame to download: 1, hourly, 2, daily
+    \[default\], or 3, monthly.
+  - `-y <years>`: colon-separated start and end years (or single year)
+    e.g. `1981:2010` (not needed for monthly data)
+  - `-m <months>`: colon-separated start and end months (or single
+    month) e.g. `6:8` (only used for hourly data)
 
-As an example, let's get the hourly spring data for Toronto Pearson in 1989 and 1990.
+As an example, let’s get the hourly spring data for Toronto Pearson in
+1989 and 1990.
 
 ``` bash
 ec3 get -s 5097 -t 1 -y 1989:1990 -m 3:5
 ```
 
-    ## Downloading 5097-hourly-1989-03.csv to /tmp/tmpn2wu38_1
-    ## Downloading 5097-hourly-1989-04.csv to /tmp/tmpn2wu38_1
-    ## Downloading 5097-hourly-1989-05.csv to /tmp/tmpn2wu38_1
-    ## Downloading 5097-hourly-1990-03.csv to /tmp/tmpn2wu38_1
-    ## Downloading 5097-hourly-1990-04.csv to /tmp/tmpn2wu38_1
-    ## Downloading 5097-hourly-1990-05.csv to /tmp/tmpn2wu38_1
-    ## Saving data to 5097-hourly.csv
+    ## Saving data to 5097-hourly-1989-1990-m3-5.csv
 
-By default, the data will be saved to a filename called *&lt;station≶-&lt;timeframe&gt;.csv*. To change the filename, pass the `--outfile` flag, as we did to save search results.
+By default, the data will be saved to a filename called
+*\<station≶-\<timeframe\>-\<years\>\<months\>.csv*. To change the
+filename, pass the `--outfile` flag, as we did to save search results.
 
 ``` bash
 ec3 get -s 5097 -t 1 -y 1989 -m 4 --outfile a_nerd_is_born.csv
 ```
 
-    ## Downloading 5097-hourly-1989-04.csv to /tmp/tmpbvcuc4b_
     ## Saving data to a_nerd_is_born.csv
 
 ``` bash
 cat a_nerd_is_born.csv | head -75 | tail -1 
 ```
 
-    ## 1989-04-04 01:00,1989,4,4,01:00,4.4,,4.4,,100,,11.0,,15,,0.0,,99.11,,,,,,Fog
+    ## 5097,1989-04-04 01:00,1989,4,4,01:00,4.4,,4.4,,100,,11.0,,15,,0.0,,99.11,,,,,,Fog
 
 ### Notes
 
-**ec3** is my third offering of an "eccc" program. The first implementation was an R package that was deprecated in favour of [**canadaHCD**](https://github.com/gavinsimpson/canadaHCD) and [**canadaHCDx**](https://gitlab.com/ConorIA/canadaHCDx/). After encountering lab mates who do not use R, I implemented "eccc" as a [bash script](https://gitlab.com/ConorIA/shell-scripts/blob/master/eccc/eccc), however that version still required some relatively complex set-up on Windows (Cygwin or WSL). The name **ec3** is a play on the fact that it is both the third version of "eccc", and that there are three C's in "eccc".
+**ec3** is my third offering of an “eccc” program. The first
+implementation was an R package that was deprecated in favour of
+[**canadaHCD**](https://github.com/gavinsimpson/canadaHCD) and
+[**canadaHCDx**](https://gitlab.com/ConorIA/canadaHCDx/). After
+encountering lab mates who do not use R, I implemented “eccc” as a [bash
+script](https://gitlab.com/ConorIA/shell-scripts/blob/master/eccc/eccc),
+however that version still required some relatively complex set-up on
+Windows (Cygwin or WSL). The name **ec3** is a play on the fact that it
+is both the third version of “eccc”, and that there are three C’s in
+“eccc”.
 
-As of the time of writing, **ec3** is really just a Python port of the "eccc" shell script, and the `find_stations()` functionality of **canadaHCDx**. Plans for the future include restructuring the program so that it can be imported as a Python module and used directly in Python as well as on the command line. Again, contributions are most welcome.
-
-Finally, the file size for the standalone binaries is currently very large. I hope to reduce this size if possible.
+As of the time of writing, **ec3** is really just a Python port of the
+“eccc” shell script, and the `find_stations()` functionality of
+**canadaHCDx**. Plans for the future include cleaning up the code and
+adding some more defensive programming to the module’s functions (there
+aren’t really any checks at the moment). Finally, the file size for the
+standalone binaries is currently very large. I hope to reduce this size
+if possible.

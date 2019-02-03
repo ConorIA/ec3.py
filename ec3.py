@@ -92,13 +92,12 @@ def get_inventory(behaviour):
     else:
         if not os.path.isfile(filename):
             if behaviour == "local":
-                exit("Cannot find the station inventory in the current working directory",
-                     "Downloading the data with: \"ec3 inv\".")
+                exit("Cannot find the station inventory in the current working directory. " + \
+                     "Please run \"ec3 inv\" to download it.")
             elif behaviour == "session":
-                warn("Cannot find the station inventory in the current working directory",
-                     "The data will be cached for this session. If running from the command-line,",
-                     "consider downloading the data with: \"ec3 inv\".")
-                filename = os.path.join(tempdir(), filename)
+                warn("Cannot find the station inventory in the current working directory.")
+                tempdir = mkdtemp()
+                filename = os.path.join(tempdir, filename)
                 print("Downloading", os.path.basename(filename), "to", os.path.dirname(filename))
                 download_file("ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv",
                               filename)
