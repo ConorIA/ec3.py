@@ -61,7 +61,7 @@ from tqdm import tqdm
 from functools import lru_cache
 DEBUG = os.getenv('DEBUG', False)
 
-__version__ = "2.1.0"
+__version__ = "2.1.1"
 
 def download_file(url, filename):
     if DEBUG:
@@ -239,7 +239,7 @@ def get_data(stations=None, type=2, years=None, months=range(1,13), progress=Tru
 
     Optional Parameters
     ----------
-    stations : str or list
+    stations : int or list
         One or more station codes to download.
     type : int or str
         The type of data to search for (required if period is not None)
@@ -264,6 +264,9 @@ def get_data(stations=None, type=2, years=None, months=range(1,13), progress=Tru
         else:
             type = 3
 
+    if isinstance(stations, int):
+        stations = [stations]
+        
     if isinstance(months, int):
         months = [months]
 
@@ -281,7 +284,7 @@ def get_data(stations=None, type=2, years=None, months=range(1,13), progress=Tru
             print("Monthly data is not split by year. Ignored.")
             years = [1989]
 
-    loops = len(stations)*len(years)*len(months)
+    loops = len(stations) * len(years) * len(months)
     i = 0
     if progress:
 
@@ -394,6 +397,11 @@ if __name__ == '__main__':
         exit(0)
 
     if arguments['get']:
+      
+        try:
+            stations = [int(x) for x in arguments['-s']]
+        except ValueError:
+            exit("One or more stations could not be coerced to integer. Typo?")
 
         if not arguments['-t'] in [1, 2, 3]:
             if not re.search('1|H|h|2|D|d|3|M|m', arguments['-t']):
@@ -426,7 +434,7 @@ if __name__ == '__main__':
 
         if arguments['-y'] is None:
             if timeframe != 3:
-                stop("Years must be specified!")
+                exit("Years must be specified!")
             else:
                 years = [1989]
         else:
@@ -435,12 +443,12 @@ if __name__ == '__main__':
                 years = [1989]
             else:
                 if not bool(re.search(r'(^[0-9]{4}$|^[0-9]{4}:[0-9]{4}$)', arguments['-y'])):
-                    stop("Invalid year format.")
+                    exit("Invalid year format.")
                 else:
                     years = [int(x) for x in arguments['-y'].split(":")]
                     years = range(min(years), max(years) + 1)
 
-        OUT = get_data(stations=arguments['-s'], type=timeframe,
+        OUT = get_data(stations=stations, type=timeframe,
                        years=years, months=months)
 
         if arguments['--outfile'] is not None:
