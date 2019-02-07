@@ -49,19 +49,22 @@ Examples:
 from docopt import docopt
 import re
 import os
-from sys import exit
 import urllib.request
 import pandas as pd
+import warnings
+from sys import exit
 from time import sleep
 from geopy.distance import distance
 from operator import itemgetter
-from warnings import warn
 from tempfile import mkdtemp
 from tqdm import tqdm
 from functools import lru_cache
 DEBUG = os.getenv('DEBUG', False)
 
-__version__ = "2.1.1"
+if not DEBUG:
+    warnings.simplefilter(action='ignore', category=FutureWarning)
+
+__version__ = "2.1.2"
 
 def download_file(url, filename):
     if DEBUG:
@@ -95,7 +98,7 @@ def get_inventory(behaviour):
                 exit("Cannot find the station inventory in the current working directory. " + \
                      "Please run \"ec3 inv\" to download it.")
             elif behaviour == "session":
-                warn("Cannot find the station inventory in the current working directory.")
+                warnings.warn("Cannot find the station inventory in the current working directory.")
                 tempdir = mkdtemp()
                 filename = os.path.join(tempdir, filename)
                 print("Downloading", os.path.basename(filename), "to", os.path.dirname(filename))
@@ -106,8 +109,8 @@ def get_inventory(behaviour):
 
     inv = pd.read_csv(filename, skiprows = guess_skip(filename))
     # Correct some placeholder coordinates (list comp because otherwise I get warnings)
-    inv['Latitude (Decimal Degrees)'] = [i if i != 40 else '' for i in inv['Latitude (Decimal Degrees)']]
-    inv['Longitude (Decimal Degrees)'] = [i if i != -50 else '' for i in inv['Longitude (Decimal Degrees)']]
+    inv['Latitude (Decimal Degrees)'] = [i if i > 0 else '' for i in inv['Latitude (Decimal Degrees)']]
+    inv['Longitude (Decimal Degrees)'] = [i if i < 0 else '' for i in inv['Longitude (Decimal Degrees)']]
     return inv
 
 def find_station(name=None, province=None, period=None, type=None, detect_recodes=False, target=None, dist=range(101)):
@@ -167,7 +170,7 @@ def find_station(name=None, province=None, period=None, type=None, detect_recode
     # Next, set the data we are interested in, if necessary
     if period is not None:
         if type is None:
-            warn("No data type passed. Ignoring data filter.")
+            warnings.warn("No data type passed. Ignoring data filter.")
         else:
             if type == 1 or type[0] in ['1', 'h', 'H']:
                 wantcols = ['HLY First Year', 'HLY Last Year']
@@ -180,7 +183,7 @@ def find_station(name=None, province=None, period=None, type=None, detect_recode
                 dropcols = ['HLY First Year', 'HLY Last Year', 'DLY First Year', 'DLY Last Year']
             else:
                 period = None
-                warn("Invalid data type passed. Ignoring data filter.")
+                warnings.warn("Invalid data type passed. Ignoring data filter.")
 
     if target is not None:
         if isinstance(target, int):
@@ -208,10 +211,12 @@ def find_station(name=None, province=None, period=None, type=None, detect_recode
             # Try to detected cases where the StationID has changed
             coords = outside[['Station ID', 'Latitude (Decimal Degrees)', 'Longitude (Decimal Degrees)']].groupby(['Latitude (Decimal Degrees)', 'Longitude (Decimal Degrees)']).count().reset_index()
             coords = coords[coords['Station ID'] > 1]
+            coords = coords[(coords['Latitude (Decimal Degrees)'] != "") & (coords['Longitude (Decimal Degrees)'] != "")]
             printed = False
             for rw in coords.index:
                 dups = outside[(outside['Latitude (Decimal Degrees)'] == coords['Latitude (Decimal Degrees)'][rw]) &
                                (outside['Longitude (Decimal Degrees)'] == coords['Longitude (Decimal Degrees)'][rw])]
+                dups = dups.sort_values('Station ID')   # There is an annoying warning here.
                 if (~dups[wantcols[0]].isnull().any()) & (min(dups[wantcols[0]]) <= min(period)):
                     if (~dups[wantcols[1]].isnull().any()) & (max(dups[wantcols[1]]) >= max(period)):
                         if min(dups[wantcols[1]]) <= max(dups[wantcols[0]]):
@@ -222,9 +227,13 @@ def find_station(name=None, province=None, period=None, type=None, detect_recode
                             print(">> Combination", combo, "at coordinates", coords['Latitude (Decimal Degrees)'][rw], \
                                   coords['Longitude (Decimal Degrees)'][rw], "\n")
                             for r in range(dups.shape[0]):
-                                print("Station {}: {}".format(dups.iloc[[r]]['Station ID'].values[0], dups.iloc[[r]].Name.values[0]))
+                                print("Station {} : {} ({}-{})".format(
+                                  dups.iloc[[r]]['Station ID'].values[0],
+                                  dups.iloc[[r]].Name.values[0],
+                                  int(dups.iloc[[r]][wantcols[0]].values[0]),
+                                  int(dups.iloc[[r]][wantcols[1]].values[0])))
                             print("\n")
-                            combo += combo
+                            combo += 1
 
         if filt.shape[0] == 0:
             print("No results!")
@@ -266,7 +275,7 @@ def get_data(stations=None, type=2, years=None, months=range(1,13), progress=Tru
 
     if isinstance(stations, int):
         stations = [stations]
-        
+
     if isinstance(months, int):
         months = [months]
 
@@ -343,7 +352,7 @@ if __name__ == '__main__':
 
         if arguments['--period'] is not None:
             if not bool(re.search(r'(^[0-9]{4}$|^[0-9]{4}:[0-9]{4}$)', arguments['--period'])):
-                warn("Invalid period format.")
+                warnings.warn("Invalid period format.")
                 period = None
             else:
                 period = [int(x) for x in arguments['--period'].split(":")]
@@ -370,7 +379,7 @@ if __name__ == '__main__':
 
         if arguments['--dist'] is not None:
             if not bool(re.search(r'(^[0-9]{1,4}:[0-9]{1,4}$)', arguments['--dist'])):
-                warn("Invalid dist format.")
+                warnings.warn("Invalid dist format.")
                 dist = range(101)
             else:
                 dist = [int(x) for x in arguments['--dist'].split(":")]
@@ -397,7 +406,7 @@ if __name__ == '__main__':
         exit(0)
 
     if arguments['get']:
-      
+
         try:
             stations = [int(x) for x in arguments['-s']]
         except ValueError:
