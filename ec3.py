@@ -64,7 +64,7 @@ DEBUG = os.getenv('DEBUG', False)
 if not DEBUG:
     warnings.simplefilter(action='ignore', category=FutureWarning)
 
-__version__ = "2.1.2"
+__version__ = "2.1.3"
 
 def download_file(url, filename):
     if DEBUG:
@@ -114,7 +114,7 @@ def get_inventory(behaviour):
     return inv
 
 def find_station(name=None, province=None, period=None, type=None, detect_recodes=False, target=None, dist=range(101)):
-    """Find data available in the Enviornment and Climate Change Canada
+    """Find data available in the Environment and Climate Change Canada
     historical data archive
 
     Optional Parameters
@@ -135,7 +135,7 @@ def find_station(name=None, province=None, period=None, type=None, detect_recode
         Either the station code of a target station, or a tuple of
         latitude and longitude to use as a target.
     dist : range
-        Desired distance from target (in km); Defaul: range(101).
+        Desired distance from target (in km); Default: range(101).
     """
 
     inv = get_inventory(behaviour="session")
@@ -243,7 +243,7 @@ def find_station(name=None, province=None, period=None, type=None, detect_recode
 
 
 def get_data(stations=None, type=2, years=None, months=range(1,13), progress=True):
-    """Download data from the Enviornment and Climate Change Canada
+    """Download data from the Environment and Climate Change Canada
     historical data archive
 
     Optional Parameters
@@ -280,7 +280,7 @@ def get_data(stations=None, type=2, years=None, months=range(1,13), progress=Tru
         months = [months]
 
     if type != 1:
-        ## Daily and monthy data are not split by month.
+        ## Daily and monthly data are not split by month.
         months = [6]
 
     if years is None:
@@ -294,10 +294,10 @@ def get_data(stations=None, type=2, years=None, months=range(1,13), progress=Tru
             years = [1989]
 
     loops = len(stations) * len(years) * len(months)
+    print(loops)
     i = 0
     if progress:
-
-        pbar = tqdm(total=loops)
+        pbar = tqdm(total=loops, leave=False, unit="files")
 
     for station in stations:
         for year in years:
@@ -327,11 +327,12 @@ def get_data(stations=None, type=2, years=None, months=range(1,13), progress=Tru
                     dat = dat.append(pd.read_csv(filename, skiprows = guess_skip(filename)).assign(Station=station))
 
                 i = i + 1
-                if i != loops:
-                    sleep(0.5)
-
+                
                 if progress:
-                    pbar.update(i)
+                    pbar.update(1)                
+                
+                if i != loops:
+                    sleep(0.25)
 
     if progress:
         pbar.close()
