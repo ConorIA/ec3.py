@@ -294,7 +294,6 @@ def get_data(stations=None, type=2, years=None, months=range(1,13), progress=Tru
             years = [1989]
 
     loops = len(stations) * len(years) * len(months)
-    print(loops)
     i = 0
     if progress:
         pbar = tqdm(total=loops, leave=False, unit="files")
