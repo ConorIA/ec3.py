@@ -32,6 +32,7 @@ Downloading Options:
                        A single year can also be passed: e.g. 1998 (does not apply to monthly data)
   -m <months>          Months to download, expressed as a range: e.g. 1:12
                        If no month is given, 1:12 will be used. (only applies to hourly data)
+  --noprogress         Pass this flag to hide the download progress bar.
 
 Other options:
   --outfile <filename> Save your search results to a csv file or override the name for the
@@ -64,7 +65,7 @@ DEBUG = os.getenv('DEBUG', False)
 if not DEBUG:
     warnings.simplefilter(action='ignore', category=FutureWarning)
 
-__version__ = "2.1.4"
+__version__ = "2.1.5"
 
 def download_file(url, filename):
     if DEBUG:
@@ -458,7 +459,8 @@ if __name__ == '__main__':
                     years = range(min(years), max(years) + 1)
 
         OUT = get_data(stations=stations, type=timeframe,
-                       years=years, months=months)
+                       years=years, months=months,
+                       progress=(not arguments['--noprogress']))
 
         if arguments['--outfile'] is not None:
             outfile = arguments['--outfile']
