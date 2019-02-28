@@ -64,7 +64,7 @@ DEBUG = os.getenv('DEBUG', False)
 if not DEBUG:
     warnings.simplefilter(action='ignore', category=FutureWarning)
 
-__version__ = "2.1.3"
+__version__ = "2.1.4"
 
 def download_file(url, filename):
     if DEBUG:
@@ -143,7 +143,7 @@ def find_station(name=None, province=None, period=None, type=None, detect_recode
 
     if name is not None:
         nmreg = re.compile(name, flags = re.IGNORECASE)
-        filt = filt[filt.Name.isin(list(filter(nmreg.match, filt.Name)))]
+        filt = filt[filt.Name.isin(list(filter(nmreg.search, filt.Name)))]
 
         if filt.shape[0] == 0:
             print("No results!")
