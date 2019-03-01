@@ -65,7 +65,7 @@ DEBUG = os.getenv('DEBUG', False)
 if not DEBUG:
     warnings.simplefilter(action='ignore', category=FutureWarning)
 
-__version__ = "2.1.5"
+__version__ = "2.1.6"
 
 def download_file(url, filename):
     if DEBUG:
@@ -274,15 +274,24 @@ def get_data(stations=None, type=2, years=None, months=range(1,13), progress=Tru
         else:
             type = 3
 
-    if isinstance(stations, int):
+    if isinstance(stations, str) or not hasattr(stations, '__len__'):
         stations = [stations]
 
-    if isinstance(months, int):
-        months = [months]
+    try:
+        stations = [int(x) for x in stations]
+    except ValueError:
+        exit("One or more stations could not be coerced to integer. Typo?")
 
     if type != 1:
         ## Daily and monthly data are not split by month.
         months = [6]
+    else:
+        if isinstance(months, str) or not hasattr(months, '__len__'):
+            months = [months]
+        try:
+            months = [int(x) for x in months]
+        except ValueError:
+            exit("One or more months could not be coerced to integer. Typo?")
 
     if years is None:
         if type != 3:
@@ -293,6 +302,13 @@ def get_data(stations=None, type=2, years=None, months=range(1,13), progress=Tru
         if type == 3:
             print("Monthly data is not split by year. Ignored.")
             years = [1989]
+        else:
+            if isinstance(years, str) or not hasattr(years, '__len__'):
+                years = [years]
+            try:
+                years = [int(x) for x in years]
+            except ValueError:
+                exit("One or more years could not be coerced to integer. Typo?")
 
     loops = len(stations) * len(years) * len(months)
     i = 0
