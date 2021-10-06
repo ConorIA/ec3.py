@@ -3,12 +3,12 @@ stages:
   - deploy
 
 .build: &build
-  image: docker:stable
+  image: docker:19.03.12
   variables: 
     DOCKER_TLS_CERTDIR: "/certs"
     FF_NETWORK_PER_BUILD: "true"
   services:
-    - docker:dind
+    - docker:19.03.12-dind
   stage: build
   before_script:
     - docker info
