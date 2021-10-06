@@ -6,6 +6,7 @@ stages:
   image: docker:stable
   variables: 
     DOCKER_TLS_CERTDIR: "/certs"
+    FF_NETWORK_PER_BUILD: "true"
   services:
     - docker:dind
   stage: build
