@@ -65,7 +65,7 @@ DEBUG = os.getenv('DEBUG', False)
 if not DEBUG:
     warnings.simplefilter(action='ignore', category=FutureWarning)
 
-__version__ = "2.1.6"
+__version__ = "2.1.7"
 
 def download_file(url, filename):
     if DEBUG:
@@ -87,12 +87,12 @@ def guess_skip(filename):
 
 @lru_cache()
 def get_inventory(behaviour):
+    url = "https://docs.google.com/uc?export=download&id=1HDRnj41YBWpMioLPwAFiLlK4SK8NV72C"
     filename = "Station Inventory EN.csv"
 
     if behaviour == "update":
         print("Downloading", filename, "to the current working directory")
-        download_file("ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv",
-                      filename)
+        download_file(url, filename)
     else:
         if not os.path.isfile(filename):
             if behaviour == "local":
@@ -103,8 +103,7 @@ def get_inventory(behaviour):
                 tempdir = mkdtemp()
                 filename = os.path.join(tempdir, filename)
                 print("Downloading", os.path.basename(filename), "to", os.path.dirname(filename))
-                download_file("ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv",
-                              filename)
+                download_file(url, filename)
             else:
                 raise Exception("Unknown behaviour passed.")
 
