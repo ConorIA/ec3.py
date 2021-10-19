@@ -5,7 +5,6 @@ block_cipher = None
 
 
 a = Analysis(['ec3.py'],
-             pathex=['/builds/ec3.py'],
              binaries=[],
              datas=[],
              hiddenimports=[],
