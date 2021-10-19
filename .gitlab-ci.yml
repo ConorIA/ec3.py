@@ -1,43 +1,16 @@
-#conda_build:
-#  stage: build
-#  image: continuumio/miniconda3:latest
-#  script:
-#    - apt-get update -qq && apt-get -yqq install binutils #FIXME
-#    - conda config --prepend channels conda-forge
-#    - conda install -yq conda conda-build anaconda-client
-#    - conda build -q conda
-#    - mkdir tarballs
-#    - cp /opt/conda/conda-bld/noarch/ec3-*.tar.bz2 tarballs/
-#  artifacts:
-#    expire_in: 1h
-#    paths:
-#    - tarballs
+image: docker:19.03.0
 
-.pyinstaller_build: &pyinstaller_build
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
+services:
+  - docker:19.03.0-dind
+
+before_script:
+  - docker info
+
+build:
   stage: build
-  variables: 
-    SRCDIR: "/builds/claut/ec3.py"
   script:
-  artifacts:
-    expire_in: 1h
-    paths:
-      - dist
-
-#pyinstaller_build win:
-#  <<: *pyinstaller_build
-#  image: batonogov/pyinstaller-windows
-
-pyinstaller_build lin:
-  <<: *pyinstaller_build
-  image: batonogov/pyinstaller-linux
-
-#conda_deploy:
-#  stage: deploy
-#  image: continuumio/miniconda3:latest
-#  script:
-#    - conda install -yq anaconda-client
-#    - anaconda -t $CONDA_UPLOAD_TOKEN upload --user claut --summary "Uploaded by GitLab CI" tarballs/ec3-*.tar.bz2 --force
-#  dependencies:
-#    - conda_build
-#  only:
-#  - master
+    - docker run -v "$PWD:/src" batonogov/pyinstaller-linux
