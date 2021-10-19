@@ -18,7 +18,7 @@ conda_build:
   variables: 
     SRCDIR: "/builds/claut/ec3.py"
   script:
-    - sed '41,48d' /entrypoint.sh
+    - sed '8d;41,48d' /entrypoint.sh
     - /entrypoint.sh
     - cd $SRCDIR
     - pyinstaller --clean -y --dist ./dist --workpath /tmp *.spec
