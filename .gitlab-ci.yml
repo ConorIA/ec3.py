@@ -36,13 +36,13 @@ pyinstaller_build lin:
   <<: *pyinstaller_build
   image: batonogov/pyinstaller-linux
 
-conda_deploy:
-  stage: deploy
-  image: continuumio/miniconda3:latest
-  script:
-    - conda install -yq anaconda-client
-    - anaconda -t $CONDA_UPLOAD_TOKEN upload --user claut --summary "Uploaded by GitLab CI" tarballs/ec3-*.tar.bz2 --force
-  dependencies:
-    - conda_build
-  only:
-  - master
+#conda_deploy:
+#  stage: deploy
+#  image: continuumio/miniconda3:latest
+#  script:
+#    - conda install -yq anaconda-client
+#    - anaconda -t $CONDA_UPLOAD_TOKEN upload --user claut --summary "Uploaded by GitLab CI" tarballs/ec3-*.tar.bz2 --force
+#  dependencies:
+#    - conda_build
+#  only:
+#  - master
