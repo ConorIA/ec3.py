@@ -17,12 +17,9 @@
   stage: build
   variables: 
     SRCDIR: "/builds/claut/ec3.py"
-    PYTHON_VERSION: 3.9.7
+  entrypoint: [""]
   script:
-    - export PATH="usr/sbin:/usr/bin:/sbin:/bin:$HOME/.pyenv/versions/$PYTHON_VERSION/bin/"
-    - pip install -r requirements.txt || true
-    - pyinstaller --noconfirm --onefile --additional-hooks-dir=.misc/hooks ec3.py
-    - chown -R --reference=. ./dist
+    - /entrypoint.sh
   artifacts:
     expire_in: 1h
     paths:
