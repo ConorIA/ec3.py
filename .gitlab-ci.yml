@@ -17,10 +17,11 @@ conda_build:
   stage: build
   variables: 
     SRCDIR: "/builds/claut/ec3.py"
+    PYTHON_VERSION: 3.9.7
   script:
-    - sed '8d;41,48d' /entrypoint.sh
-    - /entrypoint.sh
-    - cd $SRCDIR
+    - echo 'export PATH=$PATH:$HOME/.pyenv/versions/$PYTHON_VERSION/bin/' >> ~/.bashrc
+    - . /root/.bashrc
+    - pip install -r requirements.txt
     - pyinstaller --clean -y --dist ./dist --workpath /tmp *.spec
     - chown -R --reference=. ./dist
   artifacts:
