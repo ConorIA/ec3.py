@@ -13,6 +13,25 @@ conda_build:
     paths:
     - tarballs
 
+.pyinstaller_build: &pyinstaller_build
+  stage: build
+  variables: 
+    SRCDIR: "/builds/claut/ec3.py"
+  script:
+    - /entrypoint.sh
+  artifacts:
+    expire_in: 1h
+    paths:
+      - dist/*
+
+pyinstaller_build win:
+  <<: *pyinstaller_build
+  image: batonogov/pyinstaller-windows
+
+pyinstaller_build lin:
+  <<: *pyinstaller_build
+  image: batonogov/pyinstaller-linux
+
 conda_deploy:
   stage: deploy
   image: continuumio/miniconda3:latest
