@@ -2,11 +2,11 @@ language: generic
 os: osx
 install:
 - brew update
-- brew upgrade python
+- travis_wait brew upgrade python
 - brew install upx
-- pip3 install --upgrade pip setuptools wheel
-- pip3 install pyinstaller
-- pip3 install -r requirements.txt
+- travis_retry pip3 install --upgrade pip setuptools wheel
+- travis_retry pip3 install pyinstaller
+- travis_retry pip3 install -r requirements.txt
 script:
 - pyinstaller --noconfirm --onefile ec3.py
 after_success:
