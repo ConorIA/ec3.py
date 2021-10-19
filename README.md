@@ -1,42 +1,35 @@
 ec3
 ================
 
-**ec3** is a Python module and a standalone command-line executable to search for and download historical Canadian climate data from Environment and Climate Change Canada's historical data archive.
+**ec3** is a Python module ~~and a standalone command-line executable~~ (standalone executable temporarily discontinued) to search for and download historical Canadian climate data from Environment and Climate Change Canada's historical data archive.
 
 ### Download
 
-The **ec3** module can be installed via Anaconda from my personal Anaconda channel:
+The **ec3** module can be installed via Anaconda from the Climate Lab at University of Toronto (claut) channel:
 
 ``` bash
 conda config --prepend channels conda-forge
-conda config --append channels ConorIA
+conda config --append channels claut
 conda install ec3
 ```
 
 The module contains two functions: `ec3.find_station()`, and `ec3.get_data()`. The functions provide the same functionality as document in this README, check the function documentation for syntax.
 
-The **ec3.py** script can also be executed directly in Python by downloading [**ec3.py**](https://gitlab.com/ConorIA/ec3.py/raw/master/ec3.py?inline=false) running, e.g. `python ec3.py --help`. Check the [requirements](https://gitlab.com/ConorIA/ec3.py/raw/master/requirements.txt) file for the libraries needed.
-
-You can also download a standalone version of **ec3** for Windows, Linux, or Mac. This version of the program includes a bundled Python interpreter and includes all of the necessary libraries so that you can run the program directly without installing any software. This version is ideal for users who have no interest in using Python, or who can't install software on their workstation (e.g. at a university computer lab).
-
--   [Download for Linux](https://dav.conr.ca/ec3/lin/ec3)
--   [Download for Windows](https://dav.conr.ca/ec3/win/ec3.exe)
--   [Download for Mac](https://dav.conr.ca/ec3/mac/ec3)
-
-**ec3** does not have a GUI, and therefore must be run from a terminal (or command prompt on Windows). On Linux and Mac, it will be necessary to set the application as executable by running:
+If you don't use Anaconda, you can install using pip by running the following two commands:
 
 ``` bash
-chmod +x ec3
+pip install -r https://gitlab.com/claut/ec3.py/-/raw/master/requirements.txt
+pip install git+https://gitlab.com/claut/ec3.py
 ```
 
-*Note: as of writing, the Linux and Windows versions are lightly tested. The Mac version has not been tested. Please report issues here!*
+The **ec3.py** script can also be executed directly in Python by downloading [**ec3.py**](https://gitlab.com/claut/ec3.py/raw/master/ec3.py?inline=false) running, e.g. `python ec3.py --help`. Check the [requirements](https://gitlab.com/claut/ec3.py/raw/master/requirements.txt) file for the libraries needed.
 
 ### Usage
 
 **ec3** has three base commands: `inv`, `find`, and `get`. The examples below are showing the Linux version of the program. If you get an error that the command is not found, call the executable with the full directory path, or, if it is saved in the current directory, append `./` on Linux or Mac.
 
 ``` bash
-ec3 --help
+python -m ec3 --help
 ```
 
     ## Usage:
@@ -91,7 +84,7 @@ ec3 --help
 The `inv` command will download the most recent (English) version of the ECCC [Station Inventory](ftp://client_climate@ftp.tor.ec.gc.ca/Pub/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv) table (in CSV format). This command should be run periodically, as the inventory table is updated fairly regularly. If you are running from the command line, this is a prerequiste for the `find` command. If you are running the Python module, this file will be downloaded automatically once per session.
 
 ``` bash
-ec3 inv
+python -m ec3 inv
 ```
 
     ## Downloading Station Inventory EN.csv to the current working directory
@@ -103,7 +96,7 @@ The search function is invoked by the `find` command. You can search by name, pe
 As an example, run the following command to find, all stations with "Toronto" in their name. *Note, I have piped the output to head, because the list is very long. You should omit that `| head` section to see more results!*
 
 ``` bash
-ec3 find --name "Toronto" | head
+python -m ec3 find --name "Toronto" | head
 ```
 
     ##                                          Name  ... MLY Last Year
@@ -120,7 +113,7 @@ ec3 find --name "Toronto" | head
 You can limit your results by province. e.g. find all stations in the province of Ontario:
 
 ``` bash
-ec3 find --prov ON | head
+python -m ec3 find --prov ON | head
 ```
 
     ##                            Name Province  ... MLY First Year  MLY Last Year
@@ -139,7 +132,7 @@ ec3 find --prov ON | head
 You can also limit your results by available data. e.g. find stations named "Toronto", with hourly data available from 1971 to 2000:
 
 ``` bash
-ec3 find --name Toronto --period 1971:2000 --type hourly
+python -m ec3 find --name Toronto --period 1971:2000 --type hourly
 ```
 
     ##                                    Name Province  ... HLY First Year  HLY Last Year
@@ -153,7 +146,7 @@ Searches can be passed a target of either a station ID (e.g. 5051), or space-sep
 e.g. find all stations between 0 and 100 km from Station No. 5051 (Toronto):
 
 ``` bash
-ec3 find --target 5051 --dist 0:100 | head
+python -m ec3 find --target 5051 --dist 0:100 | head
 ```
 
     ##                                 Name  ...                   Dist
@@ -170,7 +163,7 @@ ec3 find --target 5051 --dist 0:100 | head
 e.g. find all stations that are within 5 km of UTSC campus:
 
 ``` bash
-ec3 find --target 43.7838 79.1875 --dist 0:5
+python -m ec3 find --target 43.7838 79.1875 --dist 0:5
 ```
 
     ##                                      Name  ...                    Dist
@@ -188,7 +181,7 @@ ec3 find --target 43.7838 79.1875 --dist 0:5
 Finally, there have been a number of cases where the same station has changed name and ID over its history. In this case, filtering by the period of available data might exclude these stations. If you would like the have **ec3** try to identify these cases, use the `--recodes` command line flag. The program will report any combination for which the coordinates are the same, and which, together, provide sufficient data.
 
 ``` bash
-ec3 find --period 1981:2010 --type 2 --target 5051 --dist 0:10 --recodes
+python -m ec3 find --period 1981:2010 --type 2 --target 5051 --dist 0:10 --recodes
 ```
 
     ## Note: In addition to the stations found, the following combinations may provide sufficient baseline data.
@@ -210,7 +203,7 @@ ec3 find --period 1981:2010 --type 2 --target 5051 --dist 0:10 --recodes
 By default, the results of a search are not saved. The output will also likely be truncated due to some of Pythons print limitations. To save the full results to a CSV file, pass the `--outfile` flag with a filename:
 
 ``` bash
-ec3 find --name "Toronto" --outfile results.csv | head
+python -m ec3 find --name "Toronto" --outfile results.csv | head
 ```
 
     ##                                          Name  ... MLY Last Year
@@ -255,7 +248,7 @@ In the examples below, I will use the `--noprogress` flag to hide the progress b
 As an example, let's get the hourly spring data for Toronto Pearson in 1989 and 1990.
 
 ``` bash
-ec3 get -s 5097 -t 1 -y 1989:1990 -m 3:5 --noprogress
+python -m ec3 get -s 5097 -t 1 -y 1989:1990 -m 3:5 --noprogress
 ```
 
     ## Saving data to 5097-hourly-1989-1990-m3-5.csv
@@ -263,7 +256,7 @@ ec3 get -s 5097 -t 1 -y 1989:1990 -m 3:5 --noprogress
 By default, the data will be saved to a filename called *&lt;station≶-&lt;timeframe&gt;-&lt;years&gt;&lt;months&gt;.csv*. To change the filename, pass the `--outfile` flag, as we did to save search results.
 
 ``` bash
-ec3 get -s 5097 -t 1 -y 1989 -m 4 --noprogress --outfile a_nerd_is_born.csv
+python -m ec3 get -s 5097 -t 1 -y 1989 -m 4 --noprogress --outfile a_nerd_is_born.csv
 ```
 
     ## Saving data to a_nerd_is_born.csv
@@ -280,4 +273,4 @@ cat a_nerd_is_born.csv | head -75 | tail -1
 
 As of the time of writing, **ec3** is really just a Python port of the "eccc" shell script, and the `find_stations()` functionality of **canadaHCDx**. Plans for the future include cleaning up the code and adding some more defensive programming to the module's functions (there aren't really any checks at the moment). Finally, the file size for the standalone binaries is currently very large. I hope to reduce this size if possible.
 
-*The version of **ec3** used to generate this README was **ec3 2.1.5**.*
+*The version of **ec3** _originally_ used to generate this README was **ec3 2.1.5**.*

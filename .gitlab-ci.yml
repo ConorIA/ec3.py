@@ -1,41 +1,25 @@
-stages:
-  - build
-  - deploy
-
-.build: &build
-  image: docker:19.03.12
-  variables: 
-    DOCKER_TLS_CERTDIR: "/certs"
-    FF_NETWORK_PER_BUILD: "true"
-  services:
-    - docker:19.03.12-dind
+conda_build:
   stage: build
-  before_script:
-    - docker info
+  image: continuumio/miniconda3:latest
   script:
-    - docker run --rm -v "$(pwd):/src/" ${CONTAINER} "apt-get update -y && apt-get install -y upx-ucl && pyinstaller --noconfirm --onefile --additional-hooks-dir=.misc/hooks ec3.py"
+    - apt-get update -qq && apt-get -yqq install binutils #FIXME
+    - conda config --prepend channels conda-forge
+    - conda install -yq conda conda-build anaconda-client
+    - conda build -q conda
+    - mkdir tarballs
+    - cp /opt/conda/conda-bld/noarch/ec3-*.tar.bz2 tarballs/
   artifacts:
     expire_in: 1h
     paths:
-      - dist/*
+    - tarballs
 
-build-win:
-  <<: *build
-  variables:
-    CONTAINER: lewisoaten/pyinstaller-windows:python3.7
-
-build-lin:
-  <<: *build
-  variables:
-    CONTAINER: cdrx/pyinstaller-linux:python3
-
-deploy:
-  image: alpine
+conda_deploy:
   stage: deploy
+  image: continuumio/miniconda3:latest
   script:
-    - apk add --no-cache curl ca-certificates
-    - curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/lin/
-    - curl -T dist/ec3.exe -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/win/
+    - conda install -yq anaconda-client
+    - anaconda -t $CONDA_UPLOAD_TOKEN upload --user claut --summary "Uploaded by GitLab CI" tarballs/ec3-*.tar.bz2 --force
+  dependencies:
+    - conda_build
   only:
   - master
-
