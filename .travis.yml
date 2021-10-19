@@ -1,8 +1,8 @@
 language: generic
 os: osx
+osx_image: xcode12.5
 install:
 - brew update
-- travis_wait brew upgrade python
 - brew install upx
 - travis_retry pip3 install --upgrade pip setuptools wheel
 - travis_retry pip3 install pyinstaller
