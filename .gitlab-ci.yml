@@ -1,16 +1,36 @@
-pyinstaller_build:
+.pyinstaller_build: &pyinstaller_build
   image: docker:19.03.0
   stage: build
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
   services:
     - docker:19.03.0-dind
   before_script:
     - docker info
   script:
-    - docker run -v "$PWD:/src" batonogov/pyinstaller-linux
+    - docker run -v "$PWD:/src" $CONTAINER
   artifacts:
     expire_in: 1h
     paths:
       - dist/*
+pyinstaller_build lin:
+  <<: *pyinstaller_build
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    CONTAINER: batonogov/pyinstaller-linux
+
+pyinstaller_build win:
+  <<: *pyinstaller_build
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    CONTAINER: batonogov/pyinstaller-windows
+
+deploy:
+  image: alpine
+  stage: deploy
+  script:
+    - apk add --no-cache curl ca-certificates
+    - curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/lin/
+    - curl -T dist/ec3.exe -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/win/
+  only:
+  - master
