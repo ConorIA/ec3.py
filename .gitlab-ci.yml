@@ -1,16 +1,16 @@
-image: docker:19.03.0
-
-variables:
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: ""
-
-services:
-  - docker:19.03.0-dind
-
-before_script:
-  - docker info
-
-build:
+pyinstaller_build:
+  image: docker:19.03.0
   stage: build
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  services:
+    - docker:19.03.0-dind
+  before_script:
+    - docker info
   script:
     - docker run -v "$PWD:/src" batonogov/pyinstaller-linux
+  artifacts:
+    expire_in: 1h
+    paths:
+      - dist/*
