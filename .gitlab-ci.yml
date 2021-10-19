@@ -18,21 +18,23 @@ conda_build:
   variables: 
     SRCDIR: "/builds/claut/ec3.py"
   script:
-    - sed '41,43d;46,48d' /entrypoint.sh
+    - sed '41,48d' /entrypoint.sh
     - /entrypoint.sh
+    - cd $SRCDIR
+    - pyinstaller --clean -y --dist ./dist --workpath /tmp *.spec
+    - chown -R --reference=. ./dist
   artifacts:
     expire_in: 1h
     paths:
       - dist/*
 
-pyinstaller_build win:
-  <<: *pyinstaller_build
-  image: batonogov/pyinstaller-windows
+#pyinstaller_build win:
+#  <<: *pyinstaller_build
+#  image: batonogov/pyinstaller-windows
 
 pyinstaller_build lin:
   <<: *pyinstaller_build
   image: batonogov/pyinstaller-linux
-  before_script:
 
 conda_deploy:
   stage: deploy
