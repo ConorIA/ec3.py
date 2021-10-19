@@ -1,35 +1,58 @@
-stages:
-  - build
-  - deploy
-
-.build: &build
-  image: docker:19.03.12
-  variables: 
-    DOCKER_TLS_CERTDIR: "/certs"
-    FF_NETWORK_PER_BUILD: "true"
-  services:
-    - docker:19.03.12-dind
+conda_build:
   stage: build
+  image: continuumio/miniconda3:latest
+  script:
+    - apt-get update -qq && apt-get -yqq install binutils #FIXME
+    - conda config --prepend channels conda-forge
+    - conda install -yq conda conda-build anaconda-client
+    - conda build -q conda
+    - mkdir tarballs
+    - cp /opt/conda/conda-bld/noarch/ec3-*.tar.bz2 tarballs/
+  artifacts:
+    expire_in: 1h
+    paths:
+    - tarballs
+
+.pyinstaller_build: &pyinstaller_build
+  image: docker:19.03.0
+  stage: build
+  services:
+    - docker:19.03.0-dind
   before_script:
     - docker info
   script:
-    - docker run --rm -v "$(pwd):/src/" ${CONTAINER} "apt-get update -y && apt-get install -y upx-ucl && pyinstaller --noconfirm --onefile --additional-hooks-dir=.misc/hooks ec3.py"
+    - docker run -v "$PWD:/src" $CONTAINER
   artifacts:
     expire_in: 1h
     paths:
       - dist/*
 
-build-win:
-  <<: *build
+pyinstaller_build lin:
+  <<: *pyinstaller_build
   variables:
-    CONTAINER: lewisoaten/pyinstaller-windows:python3.7
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    CONTAINER: batonogov/pyinstaller-linux
 
-build-lin:
-  <<: *build
+pyinstaller_build win:
+  <<: *pyinstaller_build
   variables:
-    CONTAINER: cdrx/pyinstaller-linux:python3
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    CONTAINER: batonogov/pyinstaller-windows
 
-deploy:
+conda_deploy:
+  stage: deploy
+  image: continuumio/miniconda3:latest
+  script:
+    - conda install -yq anaconda-client
+    - anaconda -t $CONDA_UPLOAD_TOKEN upload --user claut --summary "Uploaded by GitLab CI" tarballs/ec3-*.tar.bz2 --force
+  dependencies:
+    - conda_build
+  only:
+  - master
+    
+pyinstaller_deploy:
   image: alpine
   stage: deploy
   script:
@@ -38,4 +61,3 @@ deploy:
     - curl -T dist/ec3.exe -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/win/
   only:
   - master
-
