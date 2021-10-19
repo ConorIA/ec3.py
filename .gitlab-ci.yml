@@ -21,7 +21,7 @@
   script:
     - export PATH="$PATH:$HOME/.pyenv/versions/$PYTHON_VERSION/bin/"
     - pip install -r requirements.txt
-    - pyinstaller --clean -y --dist ./dist --workpath /tmp *.spec
+    - pyinstaller --noconfirm --onefile --additional-hooks-dir=.misc/hooks ec3.py
     - chown -R --reference=. ./dist
   artifacts:
     expire_in: 1h
