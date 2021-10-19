@@ -17,6 +17,7 @@
   stage: build
   variables: 
     SRCDIR: "/builds/claut/ec3.py"
+  script:
   artifacts:
     expire_in: 1h
     paths:
