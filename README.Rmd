@@ -17,13 +17,13 @@ The **ec3** module can be installed via Anaconda from my personal Anaconda chann
 
 ```{bash, eval=FALSE}
 conda config --prepend channels conda-forge
-conda config --append channels ConorIA
+conda config --append channels claut
 conda install ec3
 ```
 
 The module contains two functions: `ec3.find_station()`, and `ec3.get_data()`. The functions provide the same functionality as document in this README, check the function documentation for syntax.
 
-The **ec3.py** script can also be executed directly in Python by downloading [**ec3.py**](https://gitlab.com/ConorIA/ec3.py/raw/master/ec3.py?inline=false) running, e.g. `python ec3.py --help`. Check the [requirements](https://gitlab.com/ConorIA/ec3.py/raw/master/requirements.txt) file for the libraries needed. 
+The **ec3.py** script can also be executed directly in Python by downloading [**ec3.py**](https://gitlab.com/claut/ec3.py/raw/master/ec3.py?inline=false) running, e.g. `python ec3.py --help`. Check the [requirements](https://gitlab.com/claut/ec3.py/raw/master/requirements.txt) file for the libraries needed. 
 
 You can also download a standalone version of **ec3** for Windows, Linux, or Mac. This version of the program includes a bundled Python interpreter and includes all of the necessary libraries so that you can run the program directly without installing any software. This version is ideal for users who have no interest in using Python, or who can't install software on their workstation (e.g. at a university computer lab). 
 
