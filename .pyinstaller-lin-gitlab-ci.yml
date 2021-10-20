@@ -1,15 +1,12 @@
 pyinstaller_build lin:
-  image: docker:19.03.0
+  image: python:3.9
   stage: build
-  services:
-    - docker:19.03.0-dind
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
-  before_script:
-    - docker info
   script:
-    - docker run -v "$PWD:/src" batonogov/pyinstaller-linux:lzma
+    - apt -y update && apt install -y upx-ucl
+    - pip install --upgrade pip setuptools wheel
+    - pip install pyinstaller
+    - pip install -r requirements.txt
+    - pyinstaller ec3.spec
   artifacts:
     expire_in: 1h
     paths:
@@ -17,7 +14,7 @@ pyinstaller_build lin:
 
 pyinstaller_test lin:
   stage: test
-  image: ubuntu
+  image: debian:bullseye-slim
   script:
     - chmod +x dist/ec3
     - dist/ec3 --version
