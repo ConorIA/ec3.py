@@ -1,0 +1,37 @@
+pyinstaller_build lin:
+  image: docker:19.03.0
+  stage: build
+  services:
+    - docker:19.03.0-dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - docker info
+  script:
+    - docker run -v "$PWD:/src" batonogov/pyinstaller-linux:lzma
+  artifacts:
+    expire_in: 1h
+    paths:
+      - dist/*
+
+pyinstaller_test lin:
+  stage: test
+  image: alpine
+  script:
+    - chmod +x dist/ec3
+    - dist/ec3 --version
+    - dist/ec3 inv
+  dependencies:
+    - pyinstaller_build lin
+    
+pyinstaller_deploy:
+  image: alpine
+  stage: deploy
+  script:
+    - apk add --no-cache curl ca-certificates
+    - curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/lin/
+  dependencies:
+    - pyinstaller_build lin
+  only:
+  - master
