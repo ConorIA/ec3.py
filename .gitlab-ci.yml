@@ -1,6 +1,6 @@
 conda:
   trigger:
-    include: .pyinstaller-win-gitlab-ci.yml
+    include: .conda-gitlab-ci.yml
     
 pyinstaller lin:
   trigger:
