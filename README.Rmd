@@ -37,7 +37,7 @@ You can also download a standalone version of **ec3** for Windows, Linux, or Mac
 chmod +x ec3
 ```
 
-_Note: as of writing, the Linux and Windows versions are lightly tested. The Mac version has not been tested. Please report issues here!_
+_Note: as of writing, this program can be considered to have been "lightly tested". Please report issues here!_
 
 ### Usage
 
@@ -47,7 +47,6 @@ _Note: as of writing, the Linux and Windows versions are lightly tested. The Mac
 PATH=$PWD:$PATH
 ec3 --help
 ```
-
 
 #### `inv`
 
