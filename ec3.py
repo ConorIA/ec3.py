@@ -50,7 +50,6 @@ Examples:
 from docopt import docopt
 import re
 import os
-import urllib.request
 import pandas as pd
 import warnings
 from sys import exit
@@ -60,23 +59,26 @@ from operator import itemgetter
 from tempfile import mkdtemp
 from tqdm import tqdm
 from functools import lru_cache
+from requests import get
 DEBUG = os.getenv('DEBUG', False)
 
 if not DEBUG:
     warnings.simplefilter(action='ignore', category=FutureWarning)
 
-__version__ = "2.1.7"
+__version__ = "2.1.8"
 
 def download_file(url, filename):
     if DEBUG:
         print("Downloading", os.path.basename(filename), "to",
           os.path.dirname(filename) if os.path.dirname(filename) != '' else "current working directory")
-    try:
-        resp = urllib.request.urlretrieve(url, filename)
-    except urllib.error.URLError as e:
-        raise Exception("There was an error finding that file! The error was: {}".format(e))
-    except urllib.error.HTTPError as e:
-        raise Exception("There was an error downloading that file! The error was: {}".format(e))
+    
+    with open(filename, "wb") as file:
+        try:
+            response = get(url)
+        except Exception as e:
+            raise Exception("There was an error downloading that file! The error was: {}".format(e))
+        else:
+            file.write(response.content)
 
 
 def guess_skip(filename):

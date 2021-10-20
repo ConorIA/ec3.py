@@ -1,6 +1,6 @@
-certifi
 docopt
 geopy
 numpy
 pandas
+requests
 tqdm
