@@ -17,7 +17,7 @@ pyinstaller_build lin:
 
 pyinstaller_test lin:
   stage: test
-  image: alpine
+  image: ubuntu
   script:
     - chmod +x dist/ec3
     - dist/ec3 --version
