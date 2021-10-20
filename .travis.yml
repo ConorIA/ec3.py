@@ -1,26 +1,13 @@
 language: generic
 os: osx
 osx_image: xcode12.5
-stages:
-  - build
-  - test
-  - name: deploy
-    if: branch = master
-jobs:
-  include:
-    - stage: build
-      install:
-        - brew update
-        - brew install upx
-        - travis_retry pip3 install --upgrade pip setuptools wheel
-        - travis_retry pip3 install pyinstaller
-        - travis_retry pip3 install -r requirements.txt
-      script:
-        - pyinstaller ec3.spec
-    - stage: test
-      script:
-        - chmod +x  dist/ec3
-        - dist/ec3 --version
-        - dist/ec3 inv
-    - stage: deploy
-      script: if [ ${TRAVIS_BRANCH} == "master" ]; then curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/mac/; fi
+install:
+- brew update
+- brew install upx
+- travis_retry pip3 install --upgrade pip setuptools wheel
+- travis_retry pip3 install pyinstaller
+- travis_retry pip3 install -r requirements.txt
+script:
+- pyinstaller ec3.spec
+after_success:
+- if [ ${TRAVIS_BRANCH} == "master" ]; then curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/mac/; fi
