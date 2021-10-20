@@ -19,12 +19,14 @@ requirements:
     - docopt
     - geopy
     - pandas
+    - requests
     - tqdm
   run:
     - "python>=3.7.1"
     - docopt
     - geopy
     - pandas
+    - requests
     - tqdm
 
 test:

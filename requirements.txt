@@ -2,4 +2,5 @@ docopt
 geopy
 numpy
 pandas
+requests
 tqdm

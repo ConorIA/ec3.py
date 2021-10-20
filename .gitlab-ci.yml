@@ -1,63 +1,11 @@
-conda_build:
-  stage: build
-  image: continuumio/miniconda3:latest
-  script:
-    - apt-get update -qq && apt-get -yqq install binutils #FIXME
-    - conda config --prepend channels conda-forge
-    - conda install -yq conda conda-build anaconda-client
-    - conda build -q conda
-    - mkdir tarballs
-    - cp /opt/conda/conda-bld/noarch/ec3-*.tar.bz2 tarballs/
-  artifacts:
-    expire_in: 1h
-    paths:
-    - tarballs
-
-.pyinstaller_build: &pyinstaller_build
-  image: docker:19.03.0
-  stage: build
-  services:
-    - docker:19.03.0-dind
-  before_script:
-    - docker info
-  script:
-    - docker run -v "$PWD:/src" $CONTAINER
-  artifacts:
-    expire_in: 1h
-    paths:
-      - dist/*
-
-pyinstaller_build lin:
-  <<: *pyinstaller_build
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
-    CONTAINER: batonogov/pyinstaller-linux
-
-pyinstaller_build win:
-  <<: *pyinstaller_build
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
-    CONTAINER: batonogov/pyinstaller-windows
-
-conda_deploy:
-  stage: deploy
-  image: continuumio/miniconda3:latest
-  script:
-    - conda install -yq anaconda-client
-    - anaconda -t $CONDA_UPLOAD_TOKEN upload --user claut --summary "Uploaded by GitLab CI" tarballs/ec3-*.tar.bz2 --force
-  dependencies:
-    - conda_build
-  only:
-  - master
+conda:
+  trigger:
+    include: .conda-gitlab-ci.yml
     
-pyinstaller_deploy:
-  image: alpine
-  stage: deploy
-  script:
-    - apk add --no-cache curl ca-certificates
-    - curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/lin/
-    - curl -T dist/ec3.exe -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/win/
-  only:
-  - master
+pyinstaller lin:
+  trigger:
+    include: .pyinstaller-lin-gitlab-ci.yml
+    
+pyinstaller win:
+  trigger:
+    include: .pyinstaller-win-gitlab-ci.yml
