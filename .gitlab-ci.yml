@@ -32,7 +32,7 @@ pyinstaller_build lin:
   variables:
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
-    CONTAINER: batonogov/pyinstaller-linux
+    CONTAINER: batonogov/pyinstaller-linux:lzma
 
 pyinstaller_build win:
   <<: *pyinstaller_build
