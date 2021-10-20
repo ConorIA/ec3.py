@@ -9,5 +9,8 @@ install:
 - travis_retry pip3 install -r requirements.txt
 script:
 - pyinstaller ec3.spec
+- chmod +x dist/ec3
+- dist/ec3 --version
+- dist/ec3 inv
 after_success:
 - if [ ${TRAVIS_BRANCH} == "master" ]; then curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/mac/; fi
