@@ -1,3 +1,9 @@
+.shared_windows_runners:
+  tags:
+  - shared-windows
+  - windows
+  - windows-1809
+
 conda_build:
   stage: build
   image: continuumio/miniconda3:latest
@@ -41,6 +47,22 @@ pyinstaller_build win:
     DOCKER_TLS_CERTDIR: ""
     CONTAINER: batonogov/pyinstaller-windows
 
+pyinstaller_test lin:
+  stage: test
+  image: alpine
+  script:
+    - chmod +x dist/ec3
+    - dist/ec3 --version
+    - dist/ec3 inv
+
+pyinstaller_test win:
+  extends:
+    - .shared_windows_runners
+  stage: test
+  script:
+    - dist/ec3.exe --version
+    - dist/ec3.exe inv
+
 conda_deploy:
   stage: deploy
   image: continuumio/miniconda3:latest
@@ -59,5 +81,8 @@ pyinstaller_deploy:
     - apk add --no-cache curl ca-certificates
     - curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/lin/
     - curl -T dist/ec3.exe -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/win/
+  dependencies:
+    - pyinstaller_build win
+    - pyinstaller_build lin
   only:
   - master
