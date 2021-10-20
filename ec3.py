@@ -83,7 +83,7 @@ def download_file(url, filename):
 
 
 def guess_skip(filename):
-    with (open(filename, 'r')) as file:
+    with (open(filename, 'r', encoding='utf-8')) as file:
         lines = file.read().splitlines()
     return lines.index(max(lines, key = len))
 
