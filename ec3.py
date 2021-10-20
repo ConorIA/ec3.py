@@ -67,18 +67,19 @@ if not DEBUG:
 
 __version__ = "2.1.8"
 
+
 def download_file(url, filename):
     if DEBUG:
         print("Downloading", os.path.basename(filename), "to",
           os.path.dirname(filename) if os.path.dirname(filename) != '' else "current working directory")
-    
-    with open(filename, "wb") as file:
-        try:
-            response = get(url)
-        except Exception as e:
-            raise Exception("There was an error downloading that file! The error was: {}".format(e))
-        else:
-            file.write(response.content)
+    try:
+        r = get(url)
+    except Exception as e:
+        raise Exception("There was an error downloading that file! The error was: {}".format(e))
+    else:
+        r.encoding = r.apparent_encoding
+        with open(filename, 'w', encoding='utf-8') as file:
+            file.write(r.content.decode())
 
 
 def guess_skip(filename):
