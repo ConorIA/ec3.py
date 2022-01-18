@@ -31,4 +31,4 @@ pyinstaller_deploy:
   dependencies:
     - pyinstaller_build lin
   only:
-  - master
+  - main

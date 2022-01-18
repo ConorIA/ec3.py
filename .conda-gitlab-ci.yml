@@ -4,7 +4,7 @@ conda_build:
   script:
     - apt-get update -qq && apt-get -yqq install binutils #FIXME
     - conda config --prepend channels conda-forge
-    - conda install -yq conda conda-build anaconda-client
+    - conda install -yq conda conda-build conda-verify anaconda-client
     - conda build -q conda
     - mkdir tarballs
     - cp /opt/conda/conda-bld/noarch/ec3-*.tar.bz2 tarballs/
@@ -22,4 +22,4 @@ conda_deploy:
   dependencies:
     - conda_build
   only:
-  - master
+  - main

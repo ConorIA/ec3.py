@@ -40,4 +40,4 @@ pyinstaller_deploy:
   dependencies:
     - pyinstaller_build win
   only:
-  - master
+  - main

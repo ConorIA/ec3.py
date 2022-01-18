@@ -13,4 +13,4 @@ script:
 - dist/ec3 --version
 - dist/ec3 inv
 after_success:
-- if [ ${TRAVIS_BRANCH} == "master" ]; then curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/mac/; fi
+- if [ ${TRAVIS_BRANCH} == "main" ]; then curl -T dist/ec3 -u "TSs69CZizMK6umjx:${PASSWORD}" https://dav.conr.ca/ec3/mac/; fi
