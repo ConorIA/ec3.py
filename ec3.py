@@ -342,7 +342,7 @@ def get_data(stations=None, type=2, years=None, months=range(1,13), progress=Tru
                 except NameError:
                     dat = pd.read_csv(filename, skiprows = guess_skip(filename)).assign(Station=station)
                 else:
-                    dat = dat.append(pd.read_csv(filename, skiprows = guess_skip(filename)).assign(Station=station))
+                    dat = pd.concat([dat, pd.read_csv(filename, skiprows = guess_skip(filename)).assign(Station=station)], ignore_index = True)
 
                 i = i + 1
                 
