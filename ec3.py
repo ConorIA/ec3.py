@@ -65,7 +65,7 @@ DEBUG = os.getenv('DEBUG', False)
 if not DEBUG:
     warnings.simplefilter(action='ignore', category=FutureWarning)
 
-__version__ = "2.1.8"
+__version__ = "2.2.0"
 
 
 def download_file(url, filename):
